@@ -20,10 +20,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.hpp" />
+    <ClInclude Include="cryptography\AESWrapper.h" />
+    <ClInclude Include="cryptography\Base64Wrapper.h" />
+    <ClInclude Include="cryptography\RSAWrapper.h" />
     <ClInclude Include="project_exception.hpp" />
     <ClInclude Include="project_status.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="cryptography\AESWrapper.cpp" />
+    <ClCompile Include="cryptography\Base64Wrapper.cpp" />
+    <ClCompile Include="cryptography\RSAWrapper.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="project_exception.cpp" />
   </ItemGroup>
@@ -97,7 +103,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;WIN32_WINNT=0x0A00;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Program Files\boost\boost_1_77_0</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files\cryptopp850;C:\Program Files\boost\boost_1_77_0</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
