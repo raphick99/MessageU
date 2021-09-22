@@ -1,4 +1,5 @@
 ﻿#include <iostream>
+#include <boost/asio.hpp>
 #include "project_exception.hpp"
 #include "project_status.hpp"
 
@@ -6,7 +7,7 @@ int main(void)
 {
     try
     {
-        
+
     }
     catch (const ProjectException& e)
     {
