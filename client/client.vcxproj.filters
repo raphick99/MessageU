@@ -39,6 +39,39 @@
     <ClInclude Include="utility.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="client.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="contact_information.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="basic_information.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="client_information.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\request.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\request_code.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\message_type.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\register_request.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\response.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\response_code.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\register_response.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -57,6 +90,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="tcp_client.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="client.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="client_information.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="basic_information.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -3,16 +3,21 @@
 #include <boost/asio.hpp>
 #include "project_exception.hpp"
 #include "project_status.hpp"
+#include "client.hpp"
 
 int main(void)
 {
     try
     {
-        std::cout << "MessageU client at your service.\n\n";
+        std::cout << "MessageU client at your service.\n";
+        Client client;
         while (1)
         {
             int input;
+            std::cout << "\n";
             std::cout << "10) Register\n";
+            std::cout << "0) Exit client\n";
+            std::cout << "? ";
             if (!(std::cin >> input))
             {
                 std::cin.clear();
@@ -24,7 +29,10 @@ int main(void)
             switch (input)
             {
             case 10:
-                std::cout << "in correct input\n";
+                client.register_client();
+                break;
+            case 0:
+                return 0;
                 break;
             default:
                 std::cout << "invalid input. not a valid option\n";

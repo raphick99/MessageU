@@ -19,19 +19,33 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="client.hpp" />
+    <ClInclude Include="client_information.hpp" />
+    <ClInclude Include="contact_information.hpp" />
     <ClInclude Include="config.hpp" />
     <ClInclude Include="cryptography\AESWrapper.h" />
     <ClInclude Include="cryptography\Base64Wrapper.h" />
     <ClInclude Include="cryptography\RSAWrapper.h" />
+    <ClInclude Include="basic_information.hpp" />
     <ClInclude Include="project_exception.hpp" />
     <ClInclude Include="project_status.hpp" />
+    <ClInclude Include="protocol\message_type.hpp" />
+    <ClInclude Include="protocol\register_request.hpp" />
+    <ClInclude Include="protocol\register_response.hpp" />
+    <ClInclude Include="protocol\request.hpp" />
+    <ClInclude Include="protocol\request_code.hpp" />
+    <ClInclude Include="protocol\response.hpp" />
+    <ClInclude Include="protocol\response_code.hpp" />
     <ClInclude Include="tcp_client.hpp" />
     <ClInclude Include="utility.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="client.cpp" />
+    <ClCompile Include="client_information.cpp" />
     <ClCompile Include="cryptography\AESWrapper.cpp" />
     <ClCompile Include="cryptography\Base64Wrapper.cpp" />
     <ClCompile Include="cryptography\RSAWrapper.cpp" />
+    <ClCompile Include="basic_information.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="project_exception.cpp" />
     <ClCompile Include="tcp_client.cpp" />

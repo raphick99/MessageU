@@ -15,5 +15,7 @@ enum class ProjectStatus
 	Utility_FileDoesntExist,
 	Utility_InvalidServerInfo,
 
+	ClientInformation_FileDoesntExist,
+
 };
 
