@@ -72,3 +72,4 @@ private:
 	boost::asio::ip::tcp::socket socket;
 	boost::asio::ip::tcp::resolver resolver;
 };
+

@@ -26,6 +26,7 @@
     <ClInclude Include="project_exception.hpp" />
     <ClInclude Include="project_status.hpp" />
     <ClInclude Include="tcp_client.hpp" />
+    <ClInclude Include="utility.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cryptography\AESWrapper.cpp" />
@@ -107,6 +108,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Program Files\cryptopp850;C:\Program Files\boost\boost_1_77_0</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

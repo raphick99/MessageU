@@ -12,4 +12,8 @@ enum class ProjectStatus
 	TcpClient_IncompleteRead,
 	TcpClient_IncompleteWrite,
 
+	Utility_FileDoesntExist,
+	Utility_InvalidServerInfo,
+
 };
+
