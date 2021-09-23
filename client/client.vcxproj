@@ -25,6 +25,7 @@
     <ClInclude Include="cryptography\RSAWrapper.h" />
     <ClInclude Include="project_exception.hpp" />
     <ClInclude Include="project_status.hpp" />
+    <ClInclude Include="tcp_client.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cryptography\AESWrapper.cpp" />
@@ -32,6 +33,7 @@
     <ClCompile Include="cryptography\RSAWrapper.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="project_exception.cpp" />
+    <ClCompile Include="tcp_client.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
