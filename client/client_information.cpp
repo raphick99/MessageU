@@ -6,9 +6,9 @@
 #include "project_exception.hpp"
 #include "cryptography/Base64Wrapper.h"
 
-ClientInformation::ClientInformation(const std::string& key, const BasicInformation& _basic_information) :
-    rsa_private_wrapper(key),
-    basic_information{ _basic_information.uuid, _basic_information.name }
+ClientInformation::ClientInformation(const BasicInformation::UUID& _uuid, const std::string& _name, const std::string& _key) :
+    BasicInformation(_uuid, _name),
+    rsa_private_wrapper(_key)
 {}
 
 ClientInformation ClientInformation::read_from_file(const std::string& path)
@@ -39,7 +39,7 @@ ClientInformation ClientInformation::read_from_file(const std::string& path)
 
     key = Base64Wrapper::decode(key);
     
-    return ClientInformation(key, BasicInformation{ unhexed_uuid, name });
+    return ClientInformation(unhexed_uuid, name, key);
 }
 
 void ClientInformation::write_to_file(const std::string& path, const ClientInformation& client_information)
@@ -47,10 +47,10 @@ void ClientInformation::write_to_file(const std::string& path, const ClientInfor
     std::ofstream file_to_write_to(path);
 	std::string hexed_uuid, key;
 
-    boost::algorithm::hex(client_information.basic_information.uuid, std::begin(hexed_uuid));
+    boost::algorithm::hex(client_information.uuid, std::begin(hexed_uuid));
     key = Base64Wrapper::encode(client_information.rsa_private_wrapper.getPrivateKey());
 
-    file_to_write_to << client_information.basic_information.name << "\n";
+    file_to_write_to << client_information.name << "\n";
     file_to_write_to << hexed_uuid << "\n";
     file_to_write_to << key << "\n";
 }

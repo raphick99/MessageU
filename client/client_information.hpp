@@ -4,13 +4,12 @@
 #include "basic_information.hpp"
 #include "cryptography/RSAWrapper.h"
 
-class ClientInformation
+class ClientInformation : public BasicInformation
 {
 public:
 	RSAPrivateWrapper rsa_private_wrapper;
-	BasicInformation basic_information;
 
-	ClientInformation(const std::string&, const BasicInformation&);
+	ClientInformation(const BasicInformation::UUID&, const std::string&, const std::string&);
 	~ClientInformation() = default;
 
 	static ClientInformation read_from_file(const std::string&);

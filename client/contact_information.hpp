@@ -4,11 +4,10 @@
 #include "cryptography/AESWrapper.h"
 #include "cryptography/RSAWrapper.h"
 
-class ContactInformation
+class ContactInformation : public BasicInformation
 {
 public:
-	BasicInformation basic_information;
 	AESWrapper aes_wrapper;
 	RSAPublicWrapper rsa_public_wrapper;
-
 };
+

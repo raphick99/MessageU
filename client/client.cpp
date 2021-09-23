@@ -77,7 +77,7 @@ void Client::register_client()
 		return;
 	}
 
-	client_information.emplace(rsa_wrapper.getPrivateKey(), BasicInformation(response.uuid, name));
+	client_information.emplace(response.uuid, name, rsa_wrapper.getPrivateKey());
 
 	ClientInformation::write_to_file(Config::me_info_filename, client_information.value());
 }
