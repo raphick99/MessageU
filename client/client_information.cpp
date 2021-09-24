@@ -47,7 +47,9 @@ void ClientInformation::write_to_file(const std::string& path, const ClientInfor
     std::ofstream file_to_write_to(path);
 	std::string hexed_uuid, key;
 
+    hexed_uuid.resize(client_information.uuid.size() * 2);  // multiply by 2 to account for the hex encoding.
     boost::algorithm::hex(client_information.uuid, std::begin(hexed_uuid));
+
     key = Base64Wrapper::encode(client_information.rsa_private_wrapper.getPrivateKey());
 
     file_to_write_to << client_information.name << "\n";

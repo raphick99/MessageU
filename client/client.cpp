@@ -64,8 +64,6 @@ void Client::register_client()
 	tcp_client.write_struct(request);
 
 	auto response_header = tcp_client.read_struct<ResponseHeader>();
-	auto response = tcp_client.read_struct<RegisterResponse>();
-
 	if (response_header.response_code == ResponseCode::GeneralError)
 	{
 		std::cout << "server responsed with an error\n";
@@ -77,9 +75,13 @@ void Client::register_client()
 		return;
 	}
 
+	auto response = tcp_client.read_struct<RegisterResponse>();
+
 	client_information.emplace(response.uuid, name, rsa_wrapper.getPrivateKey());
 
 	ClientInformation::write_to_file(Config::me_info_filename, client_information.value());
+
+	std::cout << "registered successfully\n";
 }
 
 std::pair<std::string, std::string> Client::get_server_info(const std::string& path)
