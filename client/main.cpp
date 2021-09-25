@@ -29,7 +29,7 @@ int main(void)
             switch (input)
             {
             case 10:
-                client.register_client();
+                client.register_request();
                 break;
             case 0:
                 return 0;

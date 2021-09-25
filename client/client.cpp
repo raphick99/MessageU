@@ -18,7 +18,7 @@ Client::Client() :
 	client_information{}
 {}
 
-void Client::register_client()
+void Client::register_request()
 {
 	if (std::filesystem::exists(Config::me_info_filename))
 	{
