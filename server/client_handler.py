@@ -1,5 +1,5 @@
 import socketserver
-import traceback
+import itertools
 import logging
 import uuid
 import database
@@ -11,17 +11,30 @@ log = logging.getLogger(__name__)
 
 
 class ClientHandler(socketserver.StreamRequestHandler):
+    message_counter = itertools.count()
+
     def handle_register_request(self, request):
         db = database.Database()
-        if db.check_client_exists_by_name(request.name):
-            raise exceptions.ClientWithRequestedNameAlreadyRegistered(request.name)
 
         client_id = uuid.uuid4().bytes
         db.add_client(client_id, request.name, request.public_key)
 
         return protocol.RegisterResponse(
             code=protocol.ResponseCode.Register,
-            uuid=client_id,
+            client_id=client_id,
+        )
+
+    def handle_client_list_request(self, request):
+        db = database.Database()
+
+        client_list = [
+            (client_id, name) for client_id, name in db.get_client_list()
+            if client_id != request.client_id
+        ]
+
+        return protocol.ListUsersResponse(
+            code=protocol.ResponseCode.ListUsers,
+            client_list=client_list,
         )
 
     def handle(self):
@@ -30,7 +43,8 @@ class ClientHandler(socketserver.StreamRequestHandler):
 
         try:
             response = {
-                protocol.RequestCode.Register: self.handle_register_request
+                protocol.RequestCode.Register: self.handle_register_request,
+                protocol.RequestCode.ListUsers: self.handle_client_list_request,
             }[request.code](request)
 
         except exceptions.GeneralServerException as e:

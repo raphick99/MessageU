@@ -4,6 +4,7 @@
 #include <optional>
 #include <utility>
 //#include <unordered_map>
+#include "protocol/response_code.hpp"
 #include "contact_information.hpp"
 #include "client_information.hpp"
 
@@ -19,8 +20,12 @@ public:
 	~Client() = default;
 
 public:
-	void register_client();
+	void register_request();
+	void client_list_request();
 
 private:
-	static std::pair<std::string, std::string> get_server_info(const std::string&);
+	bool is_client_registered();
+	static bool received_expected_response_code(ResponseCode, ResponseCode);
+	static std::optional<ClientInformation> get_client_info();
+	static std::pair<std::string, std::string> get_server_info();
 };

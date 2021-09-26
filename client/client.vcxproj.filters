@@ -72,6 +72,9 @@
     <ClInclude Include="protocol\register_response.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="protocol\list_client_response_entry.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

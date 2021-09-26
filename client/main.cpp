@@ -16,6 +16,7 @@ int main(void)
             int input;
             std::cout << "\n";
             std::cout << "10) Register\n";
+            std::cout << "20) Request for clients list\n";
             std::cout << "0) Exit client\n";
             std::cout << "? ";
             if (!(std::cin >> input))
@@ -29,7 +30,10 @@ int main(void)
             switch (input)
             {
             case 10:
-                client.register_client();
+                client.register_request();
+                break;
+            case 20:
+                client.client_list_request();
                 break;
             case 0:
                 return 0;

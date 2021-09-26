@@ -6,7 +6,7 @@ class InvalidPortNumber(GeneralServerException):
     pass
 
 
-class NonsupportedClientVersion(GeneralServerException):
+class NonSupportedClientVersion(GeneralServerException):
     pass
 
 
@@ -19,4 +19,8 @@ class WrongPayloadSize(GeneralServerException):
 
 
 class ClientWithRequestedNameAlreadyRegistered(GeneralServerException):
+    pass
+
+
+class PayloadSizeForListUsersRequestShouldBeZero(GeneralServerException):
     pass

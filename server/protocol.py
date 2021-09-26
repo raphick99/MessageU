@@ -1,6 +1,8 @@
 import struct
 import enum
 import dataclasses
+from typing import List, Tuple
+
 import exceptions
 
 
@@ -18,7 +20,7 @@ class RequestCode(enum.Enum):
 
 @dataclasses.dataclass
 class RequestHeader:
-    uuid: bytes
+    client_id: bytes
     code: RequestCode
     payload_size: int
 
@@ -26,15 +28,15 @@ class RequestHeader:
 
     @classmethod
     def parse_header(cls, connection):
-        uuid, version, code, payload_size = cls.header_layout.unpack(connection.read(cls.header_layout.size))
+        client_id, version, code, payload_size = cls.header_layout.unpack(connection.read(cls.header_layout.size))
 
         if version != CLIENT_VERSION:
-            raise exceptions.NonsupportedClientVersion(version)
+            raise exceptions.NonSupportedClientVersion(version)
 
         # Make sure the request code is valid.
         code = RequestCode(code)
 
-        return cls(uuid, code, payload_size)
+        return cls(client_id, code, payload_size)
 
 
 @dataclasses.dataclass
@@ -56,13 +58,24 @@ class RegisterRequest(RequestHeader):
         if header.payload_size != cls.layout.size:
             raise exceptions.WrongPayloadSize(f'(payload_size={header.payload_size})(layout_size={cls.layout.size})')
 
-        return cls(header.uuid, header.code, header.payload_size, name, public_key)
+        return cls(header.client_id, header.code, header.payload_size, name, public_key)
+
+
+@dataclasses.dataclass
+class ListUsersRequest(RequestHeader):
+    @classmethod
+    def parse(cls, header: RequestHeader, connection):
+        if header.payload_size != 0:
+            raise exceptions.PayloadSizeForListUsersRequestShouldBeZero()
+
+        return cls(header.client_id, header.code, header.payload_size)
 
 
 def parse(data):
     header = RequestHeader.parse_header(data)
     return {
-        RequestCode.Register: RegisterRequest.parse
+        RequestCode.Register: RegisterRequest.parse,
+        RequestCode.ListUsers: ListUsersRequest.parse,
     }[header.code](header, data)
 
 
@@ -98,9 +111,22 @@ class ResponseHeader:
 
 @dataclasses.dataclass
 class RegisterResponse(ResponseHeader):
-    uuid: bytes
+    client_id: bytes
 
     layout = struct.Struct('<16s')
 
     def _build_payload(self):
-        return self.layout.pack(self.uuid)
+        return self.layout.pack(self.client_id)
+
+
+@dataclasses.dataclass
+class ListUsersResponse(ResponseHeader):
+    client_list: List[Tuple[bytes, bytes]]
+
+    layout = struct.Struct('<16s255s')
+
+    def _build_payload(self):
+        payload = b''
+        for client_id, name in self.client_list:
+            payload += self.layout.pack(client_id, name)
+        return payload
