@@ -88,7 +88,7 @@ std::pair<std::string, std::string> Client::get_server_info(const std::string& p
 {
 	if (!(std::filesystem::exists(path)))
 	{
-		throw ProjectException(ProjectStatus::Utility_FileDoesntExist);
+		throw ProjectException(ProjectStatus::Client_FileDoesntExist);
 	}
 	std::string host, port;
 
@@ -98,7 +98,7 @@ std::pair<std::string, std::string> Client::get_server_info(const std::string& p
 
 	if (server_file_contents.str().find(':') == std::string::npos)
 	{
-		throw ProjectException(ProjectStatus::Utility_InvalidServerInfo);
+		throw ProjectException(ProjectStatus::Client_InvalidServerInfo);
 	}
 
 	std::getline(server_file_contents, host, ':');
