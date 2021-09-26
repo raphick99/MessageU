@@ -25,7 +25,7 @@ public:
 
 private:
 	bool is_client_registered();
-	static bool received_expected_response_code(ResponseCode, ResponseCode);
+	static bool received_expected_response_code(Protocol::ResponseCode, Protocol::ResponseCode);
 	static std::optional<ClientInformation> get_client_info();
 	static std::pair<std::string, std::string> get_server_info();
 };
