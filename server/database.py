@@ -28,6 +28,10 @@ class Database:
         cur = self.connection.cursor()
         return len(cur.execute('SELECT * FROM clients WHERE Name = ?', (name,)).fetchall()) > 0
 
+    def get_client_list(self):
+        cur = self.connection.cursor()
+        return cur.execute('SELECT ID, Name FROM clients').fetchall()
+
     @staticmethod
     def get_current_time():
         return datetime.now().strftime('%Y-%m-%d %X')

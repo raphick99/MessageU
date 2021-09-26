@@ -11,6 +11,8 @@ log = logging.getLogger(__name__)
 
 
 class ClientHandler(socketserver.StreamRequestHandler):
+    db = database.Database()
+
     def handle_register_request(self, request):
         db = database.Database()
         if db.check_client_exists_by_name(request.name):
@@ -21,7 +23,18 @@ class ClientHandler(socketserver.StreamRequestHandler):
 
         return protocol.RegisterResponse(
             code=protocol.ResponseCode.Register,
-            uuid=client_id,
+            client_id=client_id,
+        )
+
+    def handle_client_list_request(self, request):
+        client_list = [
+            (client_id, name) for client_id, name in self.db.get_client_list()
+            if client_id != request.client_id
+        ]
+
+        return protocol.ListUsersResponse(
+            code=protocol.ResponseCode.ListUsers,
+            client_list=client_list,
         )
 
     def handle(self):
@@ -30,7 +43,8 @@ class ClientHandler(socketserver.StreamRequestHandler):
 
         try:
             response = {
-                protocol.RequestCode.Register: self.handle_register_request
+                protocol.RequestCode.Register: self.handle_register_request,
+                protocol.RequestCode.ListUsers: self.handle_client_list_request,
             }[request.code](request)
 
         except exceptions.GeneralServerException as e:

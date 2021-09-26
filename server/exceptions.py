@@ -20,3 +20,7 @@ class WrongPayloadSize(GeneralServerException):
 
 class ClientWithRequestedNameAlreadyRegistered(GeneralServerException):
     pass
+
+
+class PayloadSizeForListUsersRequestShouldBeZero(GeneralServerException):
+    pass

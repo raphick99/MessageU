@@ -19,7 +19,8 @@ public:
 	~Client() = default;
 
 public:
-	void register_client();
+	void register_request();
+	void client_list_request();
 
 private:
 	static std::pair<std::string, std::string> get_server_info(const std::string&);
