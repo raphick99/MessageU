@@ -20,7 +20,7 @@ class RequestCode(enum.Enum):
 
 @dataclasses.dataclass
 class RequestHeader:
-    uuid: bytes
+    client_id: bytes
     code: RequestCode
     payload_size: int
 
@@ -28,7 +28,7 @@ class RequestHeader:
 
     @classmethod
     def parse_header(cls, connection):
-        uuid, version, code, payload_size = cls.header_layout.unpack(connection.read(cls.header_layout.size))
+        client_id, version, code, payload_size = cls.header_layout.unpack(connection.read(cls.header_layout.size))
 
         if version != CLIENT_VERSION:
             raise exceptions.NonSupportedClientVersion(version)
@@ -36,7 +36,7 @@ class RequestHeader:
         # Make sure the request code is valid.
         code = RequestCode(code)
 
-        return cls(uuid, code, payload_size)
+        return cls(client_id, code, payload_size)
 
 
 @dataclasses.dataclass
