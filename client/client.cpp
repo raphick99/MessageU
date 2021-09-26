@@ -75,7 +75,7 @@ void Client::register_request()
 
 	auto response = tcp_client.read_struct<Protocol::RegisterResponse>();
 
-	client_information.emplace(response.uuid, name, rsa_wrapper.getPrivateKey());
+	client_information.emplace(response.client_id, name, rsa_wrapper.getPrivateKey());
 
 	ClientInformation::write_to_file(Config::me_info_filename, client_information.value());
 
@@ -93,7 +93,7 @@ void Client::client_list_request()
 	TcpClient tcp_client(server_information.first, server_information.second);
 	Protocol::RequestHeader request_header{};
 
-	std::copy(std::begin(client_information->uuid), std::end(client_information->uuid), std::begin(request_header.client_id));
+	std::copy(std::begin(client_information->client_id), std::end(client_information->client_id), std::begin(request_header.client_id));
 	request_header.request_code = Protocol::RequestCode::ListUsers;
 	request_header.version = Config::version;
 	request_header.payload_size = 0;  // No payload, only request
@@ -154,7 +154,7 @@ std::optional<ClientInformation> Client::get_client_info()
 	{
 		auto client_information = ClientInformation::read_from_file(Config::me_info_filename);
 		return std::make_optional<ClientInformation>(
-			client_information.uuid,
+			client_information.client_id,
 			client_information.name,
 			client_information.rsa_private_wrapper.getPrivateKey()
 			);

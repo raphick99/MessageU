@@ -7,14 +7,14 @@
 class BasicInformation
 {
 public:
-	using UUID = std::array<uint8_t, 16>;
+	using CLIENT_ID = std::array<uint8_t, 16>;
 
 public:
-	const UUID uuid;
+	const CLIENT_ID client_id;
 	const std::string name;
 
 public:
-	BasicInformation(UUID, std::string);
+	BasicInformation(CLIENT_ID, const std::string&);
 	~BasicInformation() = default;
 };
 
