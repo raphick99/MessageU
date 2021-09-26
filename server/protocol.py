@@ -71,11 +71,28 @@ class ListUsersRequest(RequestHeader):
         return cls(header.client_id, header.code, header.payload_size)
 
 
+@dataclasses.dataclass
+class GetPublicKeyRequest(RequestHeader):
+    requested_client_id: bytes
+
+    layout = struct.Struct('<16s')
+
+    @classmethod
+    def parse(cls, header: RequestHeader, connection):
+        client_id, = cls.layout.unpack(connection.read(cls.layout.size))
+
+        if header.payload_size != cls.layout.size:
+            raise exceptions.WrongPayloadSize(f'(payload_size={header.payload_size})(layout_size={cls.layout.size})')
+
+        return cls(header.client_id, header.code, header.payload_size, client_id)
+
+
 def parse(data):
     header = RequestHeader.parse_header(data)
     return {
         RequestCode.Register: RegisterRequest.parse,
         RequestCode.ListUsers: ListUsersRequest.parse,
+        RequestCode.GetPublicKey: GetPublicKeyRequest.parse,
     }[header.code](header, data)
 
 
@@ -147,3 +164,18 @@ class ListUsersResponse(ResponseHeader):
         for client_id, name in self.client_list:
             payload += self.layout.pack(client_id, name)
         return payload
+
+
+@dataclasses.dataclass
+class GetPublicKeyResponse(ResponseHeader):
+    client_id: bytes
+    public_key: bytes
+
+    layout = struct.Struct('<16s160s')
+
+    @property
+    def code(self):
+        return ResponseCode.GetPublicKey
+
+    def _build_payload(self):
+        return self.layout.pack(self.client_id, self.public_key)

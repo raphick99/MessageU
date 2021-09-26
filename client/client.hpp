@@ -22,6 +22,7 @@ public:
 public:
 	void register_request();
 	void client_list_request();
+	void get_public_key_request();
 
 private:
 	bool is_client_registered();

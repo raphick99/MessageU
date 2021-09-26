@@ -13,6 +13,8 @@
 #include "protocol/register_request.hpp"
 #include "protocol/register_response.hpp"
 #include "protocol/list_client_response_entry.hpp"
+#include "protocol/get_public_key_request.hpp"
+#include "protocol/get_public_key_response.hpp"
 
 Client::Client() :
 	server_information(get_server_info()),
@@ -126,6 +128,63 @@ void Client::client_list_request()
 		std::cout << "Name: " << name << "\nClient ID: " << client_id << "\n";
 		std::cout << "========================================================\n";
 	}
+}
+
+void Client::get_public_key_request()
+{
+	if (!is_client_registered())
+	{
+		std::cout << "Client must be registered. returning...\n";
+		return;
+	}
+
+	TcpClient tcp_client(server_information.first, server_information.second);
+	Protocol::GetPublicKeyRequest request{};
+
+	std::string client_id;
+	std::cout << "Enter Client ID: ";
+	std::cin.ignore();
+	std::getline(std::cin, client_id);
+
+	// Since we receive it hex encoded, should be twice as long
+	if (client_id.length() != sizeof(Protocol::GetPublicKeyRequest::client_id) * 2)
+	{
+		std::cout << "Input isnt the right size . Should be " << sizeof(Protocol::GetPublicKeyRequest::client_id) * 2 
+			<< ". Is " << client_id.length() << "\n";
+		return;
+	}
+	boost::algorithm::unhex(client_id, std::begin(request.client_id));
+
+	Protocol::RequestHeader request_header{};
+	std::copy(std::begin(client_information->client_id), std::end(client_information->client_id), std::begin(request_header.client_id));
+	request_header.request_code = Protocol::RequestCode::GetPublicKey;
+	request_header.version = Config::version;
+	request_header.payload_size = sizeof(request);
+
+	tcp_client.write_struct(request_header);
+	tcp_client.write_struct(request);
+
+	auto response_header = tcp_client.read_struct<Protocol::ResponseHeader>();
+
+	if (!received_expected_response_code(Protocol::ResponseCode::GetPublicKey, response_header.response_code))
+	{
+		return;
+	}
+
+	auto response = tcp_client.read_struct<Protocol::GetPublicKeyResponse>();
+	if (response.client_id != request.client_id)
+	{
+		std::cout << "received response with wrong client id\n";
+		return;
+	}
+
+	std::string public_key;
+
+	public_key.resize(response.public_key.size() * 2);  // multiply by 2 to account for the hex encoding.
+	boost::algorithm::hex(response.public_key, std::begin(public_key));
+
+	std::cout << "received public key: " << public_key << "\n";
+	// TODO should save the public key somehow. asked in the forum, waiting for a response.
 }
 
 bool Client::is_client_registered()
