@@ -38,7 +38,11 @@ class ClientHandler(socketserver.StreamRequestHandler):
     def handle_get_public_key_request(self, request):
         db = database.Database()
 
-        public_key, = db.get_public_key_by_client_id(request.requested_client_id)
+        result = db.get_public_key_by_client_id(request.requested_client_id)
+        if not result:
+            raise exceptions.NoClientWithRequestedClientID(request.requested_client_id)
+
+        public_key, = result
         return protocol.GetPublicKeyResponse(
             client_id=request.requested_client_id,
             public_key=public_key,
