@@ -18,8 +18,9 @@
 
 Client::Client() :
 	server_information(get_server_info()),
-	//contacts{},
-	client_information(get_client_info())
+	client_information(get_client_info()),
+	basic_client_information()
+	//contacts()
 {}
 
 void Client::register_request()
@@ -110,6 +111,7 @@ void Client::client_list_request()
 	}
 
 	size_t num_of_clients = static_cast<size_t>(response_header.payload_size) / sizeof(Protocol::ListClientResponseEntry);
+	basic_client_information.clear();  // Keep only the most updated info.
 
 	std::cout << "========================================================\n";
 	for (size_t i = 0; i < num_of_clients; i++)
@@ -127,6 +129,8 @@ void Client::client_list_request()
 
 		std::cout << "Name: " << name << "\nClient ID: " << client_id << "\n";
 		std::cout << "========================================================\n";
+
+		basic_client_information.insert({ name, response.client_id });  // Add to list.;
 	}
 }
 
