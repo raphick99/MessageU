@@ -12,6 +12,7 @@
 #include "protocol/response.hpp"
 #include "protocol/register_request.hpp"
 #include "protocol/register_response.hpp"
+#include "protocol/list_client_response_entry.hpp"
 
 Client::Client() :
 	server_information(get_server_info(Config::server_info_filename)),
