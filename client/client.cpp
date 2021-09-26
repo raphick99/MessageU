@@ -15,9 +15,9 @@
 #include "protocol/list_client_response_entry.hpp"
 
 Client::Client() :
-	server_information(get_server_info(Config::server_info_filename)),
+	server_information(get_server_info()),
 	//contacts{},
-	client_information{}
+	client_information(get_client_info())
 {}
 
 void Client::register_request()
@@ -84,7 +84,7 @@ void Client::register_request()
 
 void Client::client_list_request()
 {
-	if (is_client_registered())
+	if (!is_client_registered())
 	{
 		std::cout << "Client must be registered. returning...\n";
 		return;
@@ -147,15 +147,36 @@ bool Client::received_expected_response_code(ResponseCode expected_response_code
 	return true;
 }
 
-std::pair<std::string, std::string> Client::get_server_info(const std::string& path)
+std::optional<ClientInformation> Client::get_client_info()
 {
-	if (!(std::filesystem::exists(path)))
+	try
+	{
+		auto client_information = ClientInformation::read_from_file(Config::me_info_filename);
+		return std::make_optional<ClientInformation>(
+			client_information.uuid,
+			client_information.name,
+			client_information.rsa_private_wrapper.getPrivateKey()
+			);
+	}
+	catch (const ProjectException& e)
+	{
+		if (e.status != ProjectStatus::ClientInformation_FileDoesntExist)
+		{
+			throw;
+		}
+	}
+	return std::nullopt;
+}
+
+std::pair<std::string, std::string> Client::get_server_info()
+{
+	if (!(std::filesystem::exists(Config::server_info_filename)))
 	{
 		throw ProjectException(ProjectStatus::Client_FileDoesntExist);
 	}
 	std::string host, port;
 
-	std::ifstream server_file(path);
+	std::ifstream server_file(Config::server_info_filename);
 	std::stringstream server_file_contents;
 	server_file_contents << server_file.rdbuf();
 
