@@ -24,3 +24,7 @@ class ClientWithRequestedNameAlreadyRegistered(GeneralServerException):
 
 class PayloadSizeForListUsersRequestShouldBeZero(GeneralServerException):
     pass
+
+
+class NoClientWithRequestedClientID(GeneralServerException):
+    pass

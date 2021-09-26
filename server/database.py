@@ -43,6 +43,9 @@ class Database:
     def get_client_list(self):
         return self.connection.execute('SELECT ID, Name FROM clients').fetchall()
 
+    def get_public_key_by_client_id(self, client_id):
+        return self.connection.execute('SELECT PublicKey FROM clients WHERE ID = ?', (client_id, )).fetchone()
+
     @staticmethod
     def get_current_time():
         return datetime.now().strftime('%Y-%m-%d %X')

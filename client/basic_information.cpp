@@ -1,7 +1,7 @@
 #include "basic_information.hpp"
 
-BasicInformation::BasicInformation(UUID _uuid, std::string _name) :
-	uuid(_uuid),
-	name(std::move(_name))
+BasicInformation::BasicInformation(CLIENT_ID _client_id, const std::string& _name) :
+	client_id(_client_id),
+	name(_name)
 {}
 

@@ -6,10 +6,9 @@
 namespace Protocol
 {
 #pragma pack(push, 1)
-	struct RegisterResponse
+	struct GetPublicKeyRequest
 	{
 		std::array<uint8_t, 16> client_id;
 	};
 #pragma pack(pop)
 }
-

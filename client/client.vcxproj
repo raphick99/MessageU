@@ -29,6 +29,8 @@
     <ClInclude Include="basic_information.hpp" />
     <ClInclude Include="project_exception.hpp" />
     <ClInclude Include="project_status.hpp" />
+    <ClInclude Include="protocol\get_public_key_request.hpp" />
+    <ClInclude Include="protocol\get_public_key_response.hpp" />
     <ClInclude Include="protocol\list_client_response_entry.hpp" />
     <ClInclude Include="protocol\message_type.hpp" />
     <ClInclude Include="protocol\register_request.hpp" />
