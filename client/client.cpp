@@ -29,7 +29,7 @@ void Client::register_request()
 	}
 
 	// Shouldnt pass this condition, since if the client_information is valid, me.info should exist.
-	if (client_information.has_value())
+	if (is_client_registered())
 	{
 		std::cout << "Reached unreachable code. Someone probably deleted \"" << Config::me_info_filename <<
 			"\" in the middle of a run. returning...\n";
@@ -68,14 +68,8 @@ void Client::register_request()
 	tcp_client.write_struct(request);
 
 	auto response_header = tcp_client.read_struct<ResponseHeader>();
-	if (response_header.response_code == ResponseCode::GeneralError)
+	if (!received_expected_response_code(ResponseCode::Register, response_header.response_code))
 	{
-		std::cout << "server responsed with an error\n";
-		return;
-	}
-	if (response_header.response_code != ResponseCode::Register)
-	{
-		std::cout << "server response code doesnt match request\n";
 		return;
 	}
 
@@ -90,7 +84,7 @@ void Client::register_request()
 
 void Client::client_list_request()
 {
-	if (!client_information.has_value())
+	if (is_client_registered())
 	{
 		std::cout << "Client must be registered. returning...\n";
 		return;
@@ -107,14 +101,9 @@ void Client::client_list_request()
 	tcp_client.write_struct(request_header);
 
 	auto response_header = tcp_client.read_struct<ResponseHeader>();
-	if (response_header.response_code == ResponseCode::GeneralError)
+
+	if (!received_expected_response_code(ResponseCode::ListUsers, response_header.response_code))
 	{
-		std::cout << "server responsed with an error\n";
-		return;
-	}
-	if (response_header.response_code != ResponseCode::ListUsers)
-	{
-		std::cout << "server response code doesnt match request\n";
 		return;
 	}
 
@@ -136,6 +125,26 @@ void Client::client_list_request()
 		std::cout << "Name: " << name << "\nClient ID: " << client_id << "\n";
 		std::cout << "========================================================\n";
 	}
+}
+
+bool Client::is_client_registered()
+{
+	return client_information.has_value();
+}
+
+bool Client::received_expected_response_code(ResponseCode expected_response_code, ResponseCode received_response_code)
+{
+	if (received_response_code == ResponseCode::GeneralError)
+	{
+		std::cout << "server responsed with an error\n";
+		return false;
+	}
+	if (received_response_code != expected_response_code)
+	{
+		std::cout << "server response code doesnt match request\n";
+		return false;
+	}
+	return true;
 }
 
 std::pair<std::string, std::string> Client::get_server_info(const std::string& path)
