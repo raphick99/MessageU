@@ -20,7 +20,6 @@ class ClientHandler(socketserver.StreamRequestHandler):
         db.add_client(client_id, request.name, request.public_key)
 
         return protocol.RegisterResponse(
-            code=protocol.ResponseCode.Register,
             client_id=client_id,
         )
 
@@ -33,7 +32,6 @@ class ClientHandler(socketserver.StreamRequestHandler):
         ]
 
         return protocol.ListUsersResponse(
-            code=protocol.ResponseCode.ListUsers,
             client_list=client_list,
         )
 
@@ -49,7 +47,7 @@ class ClientHandler(socketserver.StreamRequestHandler):
 
         except exceptions.GeneralServerException as e:
             log.info(f'caught exception: {type(e).__name__}, {e.args}')
-            response = protocol.ResponseHeader(code=protocol.ResponseCode.GeneralError)
+            response = protocol.GeneralErrorResponse()
 
         log.debug(f'sending: {response}')
         self.wfile.write(response.build())

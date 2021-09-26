@@ -97,9 +97,11 @@ class MessageType(enum.Enum):
 
 @dataclasses.dataclass
 class ResponseHeader:
-    code: ResponseCode
-
     header_layout = struct.Struct('<BHI')
+
+    @property
+    def code(self):
+        raise NotImplementedError()
 
     def _build_payload(self):
         return b''
@@ -110,10 +112,21 @@ class ResponseHeader:
 
 
 @dataclasses.dataclass
+class GeneralErrorResponse(ResponseHeader):
+    @property
+    def code(self):
+        return ResponseCode.GeneralError
+
+
+@dataclasses.dataclass
 class RegisterResponse(ResponseHeader):
     client_id: bytes
 
     layout = struct.Struct('<16s')
+
+    @property
+    def code(self):
+        return ResponseCode.Register
 
     def _build_payload(self):
         return self.layout.pack(self.client_id)
@@ -124,6 +137,10 @@ class ListUsersResponse(ResponseHeader):
     client_list: List[Tuple[bytes, bytes]]
 
     layout = struct.Struct('<16s255s')
+
+    @property
+    def code(self):
+        return ResponseCode.ListUsers
 
     def _build_payload(self):
         payload = b''
