@@ -14,12 +14,11 @@ class ClientHandler(socketserver.StreamRequestHandler):
     db = database.Database()
 
     def handle_register_request(self, request):
-        db = database.Database()
-        if db.check_client_exists_by_name(request.name):
+        if self.db.check_client_exists_by_name(request.name):
             raise exceptions.ClientWithRequestedNameAlreadyRegistered(request.name)
 
         client_id = uuid.uuid4().bytes
-        db.add_client(client_id, request.name, request.public_key)
+        self.db.add_client(client_id, request.name, request.public_key)
 
         return protocol.RegisterResponse(
             code=protocol.ResponseCode.Register,
