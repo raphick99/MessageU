@@ -109,6 +109,7 @@ void Client::client_list_request()
 
 	size_t num_of_clients = static_cast<size_t>(response_header.payload_size) / sizeof(ListClientResponseEntry);
 
+	std::cout << "========================================================\n";
 	for (size_t i = 0; i < num_of_clients; i++)
 	{
 		auto response = tcp_client.read_struct<ListClientResponseEntry>();

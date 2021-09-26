@@ -1,5 +1,5 @@
 import socketserver
-import traceback
+import itertools
 import logging
 import uuid
 import database
@@ -11,14 +11,13 @@ log = logging.getLogger(__name__)
 
 
 class ClientHandler(socketserver.StreamRequestHandler):
-    db = database.Database()
+    message_counter = itertools.count()
 
     def handle_register_request(self, request):
-        if self.db.check_client_exists_by_name(request.name):
-            raise exceptions.ClientWithRequestedNameAlreadyRegistered(request.name)
+        db = database.Database()
 
         client_id = uuid.uuid4().bytes
-        self.db.add_client(client_id, request.name, request.public_key)
+        db.add_client(client_id, request.name, request.public_key)
 
         return protocol.RegisterResponse(
             code=protocol.ResponseCode.Register,
@@ -26,8 +25,10 @@ class ClientHandler(socketserver.StreamRequestHandler):
         )
 
     def handle_client_list_request(self, request):
+        db = database.Database()
+
         client_list = [
-            (client_id, name) for client_id, name in self.db.get_client_list()
+            (client_id, name) for client_id, name in db.get_client_list()
             if client_id != request.client_id
         ]
 
