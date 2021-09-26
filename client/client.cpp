@@ -44,9 +44,9 @@ void Client::register_request()
 	std::getline(std::cin, name);
 
 	// Make sure input is less than the required size, counting on the \0.
-	if (name.length() > sizeof(RegisterRequest::name) - 1)
+	if (name.length() > sizeof(Protocol::RegisterRequest::name) - 1)
 	{
-		std::cout << "Input is too long. cannot be more than " << sizeof(RegisterRequest::name) - 1 << "\n";
+		std::cout << "Input is too long. cannot be more than " << sizeof(Protocol::RegisterRequest::name) - 1 << "\n";
 		return;
 	}
 
@@ -55,25 +55,25 @@ void Client::register_request()
 
 	std::string public_key = rsa_wrapper.getPublicKey();
 
-	RegisterRequest request{};
+	Protocol::RegisterRequest request{};
 	std::copy(std::begin(name), std::end(name), std::begin(request.name));
 	std::copy(std::begin(public_key), std::end(public_key), std::begin(request.public_key));
 
-	RequestHeader request_header{};
-	request_header.request_code = RequestCode::Register;
+	Protocol::RequestHeader request_header{};
+	request_header.request_code = Protocol::RequestCode::Register;
 	request_header.version = Config::version;
 	request_header.payload_size = sizeof(request);
 
 	tcp_client.write_struct(request_header);
 	tcp_client.write_struct(request);
 
-	auto response_header = tcp_client.read_struct<ResponseHeader>();
-	if (!received_expected_response_code(ResponseCode::Register, response_header.response_code))
+	auto response_header = tcp_client.read_struct<Protocol::ResponseHeader>();
+	if (!received_expected_response_code(Protocol::ResponseCode::Register, response_header.response_code))
 	{
 		return;
 	}
 
-	auto response = tcp_client.read_struct<RegisterResponse>();
+	auto response = tcp_client.read_struct<Protocol::RegisterResponse>();
 
 	client_information.emplace(response.uuid, name, rsa_wrapper.getPrivateKey());
 
@@ -91,28 +91,28 @@ void Client::client_list_request()
 	}
 
 	TcpClient tcp_client(server_information.first, server_information.second);
-	RequestHeader request_header{};
+	Protocol::RequestHeader request_header{};
 
 	std::copy(std::begin(client_information->uuid), std::end(client_information->uuid), std::begin(request_header.client_id));
-	request_header.request_code = RequestCode::ListUsers;
+	request_header.request_code = Protocol::RequestCode::ListUsers;
 	request_header.version = Config::version;
 	request_header.payload_size = 0;  // No payload, only request
 
 	tcp_client.write_struct(request_header);
 
-	auto response_header = tcp_client.read_struct<ResponseHeader>();
+	auto response_header = tcp_client.read_struct<Protocol::ResponseHeader>();
 
-	if (!received_expected_response_code(ResponseCode::ListUsers, response_header.response_code))
+	if (!received_expected_response_code(Protocol::ResponseCode::ListUsers, response_header.response_code))
 	{
 		return;
 	}
 
-	size_t num_of_clients = static_cast<size_t>(response_header.payload_size) / sizeof(ListClientResponseEntry);
+	size_t num_of_clients = static_cast<size_t>(response_header.payload_size) / sizeof(Protocol::ListClientResponseEntry);
 
 	std::cout << "========================================================\n";
 	for (size_t i = 0; i < num_of_clients; i++)
 	{
-		auto response = tcp_client.read_struct<ListClientResponseEntry>();
+		auto response = tcp_client.read_struct<Protocol::ListClientResponseEntry>();
 		std::string client_id, name;
 
 		client_id.resize(response.client_id.size() * 2);  // multiply by 2 to account for the hex encoding.
@@ -133,9 +133,9 @@ bool Client::is_client_registered()
 	return client_information.has_value();
 }
 
-bool Client::received_expected_response_code(ResponseCode expected_response_code, ResponseCode received_response_code)
+bool Client::received_expected_response_code(Protocol::ResponseCode expected_response_code, Protocol::ResponseCode received_response_code)
 {
-	if (received_response_code == ResponseCode::GeneralError)
+	if (received_response_code == Protocol::ResponseCode::GeneralError)
 	{
 		std::cout << "server responsed with an error\n";
 		return false;
