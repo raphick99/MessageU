@@ -6,7 +6,7 @@ class InvalidPortNumber(GeneralServerException):
     pass
 
 
-class NonsupportedClientVersion(GeneralServerException):
+class NonSupportedClientVersion(GeneralServerException):
     pass
 
 

@@ -31,7 +31,7 @@ class RequestHeader:
         uuid, version, code, payload_size = cls.header_layout.unpack(connection.read(cls.header_layout.size))
 
         if version != CLIENT_VERSION:
-            raise exceptions.NonsupportedClientVersion(version)
+            raise exceptions.NonSupportedClientVersion(version)
 
         # Make sure the request code is valid.
         code = RequestCode(code)
