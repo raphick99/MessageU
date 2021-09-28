@@ -79,7 +79,7 @@ void Client::register_request()
 
 	ClientInformation::write_to_file(Config::me_info_filename, client_information.value());
 
-	std::cout << "registered successfully\n";
+	std::cout << "Registered successfully!\n";
 }
 
 void Client::client_list_request()
