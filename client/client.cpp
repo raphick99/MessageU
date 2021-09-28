@@ -39,8 +39,6 @@ void Client::register_request()
 		return;
 	}
 
-	TcpClient tcp_client(server_information.first, server_information.second);
-
 	auto name = get_name();
 
 	// Make sure input is less than the required size, counting on the \0.
@@ -63,6 +61,8 @@ void Client::register_request()
 	request_header.request_code = Protocol::RequestCode::Register;
 	request_header.version = Config::version;
 	request_header.payload_size = sizeof(request);
+
+	TcpClient tcp_client(server_information.first, server_information.second);
 
 	tcp_client.write_struct(request_header);
 	tcp_client.write_struct(request);
@@ -90,13 +90,14 @@ void Client::client_list_request()
 		return;
 	}
 
-	TcpClient tcp_client(server_information.first, server_information.second);
 	Protocol::RequestHeader request_header{};
 
 	std::copy(std::begin(client_information->client_id), std::end(client_information->client_id), std::begin(request_header.client_id));
 	request_header.request_code = Protocol::RequestCode::ListUsers;
 	request_header.version = Config::version;
 	request_header.payload_size = 0;  // No payload, only request
+
+	TcpClient tcp_client(server_information.first, server_information.second);
 
 	tcp_client.write_struct(request_header);
 
@@ -139,11 +140,7 @@ void Client::get_public_key_request()
 		return;
 	}
 
-	TcpClient tcp_client(server_information.first, server_information.second);
-	Protocol::GetPublicKeyRequest request{};
-
 	auto name = get_name();
-
 	if (basic_client_information.find(name) == std::end(basic_client_information))
 	{
 		std::cout << "No client with that name. try refreshing the client information.\n";
@@ -154,6 +151,8 @@ void Client::get_public_key_request()
 		std::cout << "WARNING: Already have public key of \"" << name << "\".\n";
 	}
 
+	Protocol::GetPublicKeyRequest request{};
+
 	auto client_id = basic_client_information.at(name);
 	std::copy(std::begin(client_id), std::end(client_id), std::begin(request.client_id));
 
@@ -162,6 +161,8 @@ void Client::get_public_key_request()
 	request_header.request_code = Protocol::RequestCode::GetPublicKey;
 	request_header.version = Config::version;
 	request_header.payload_size = sizeof(request);
+
+	TcpClient tcp_client(server_information.first, server_information.second);
 
 	tcp_client.write_struct(request_header);
 	tcp_client.write_struct(request);
