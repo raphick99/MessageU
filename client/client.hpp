@@ -25,6 +25,7 @@ public:
 	void get_public_key_request();
 
 private:
+	std::string get_name();
 	bool is_client_registered();
 	static bool received_expected_response_code(Protocol::ResponseCode, Protocol::ResponseCode);
 	static std::optional<ClientInformation> get_client_info();

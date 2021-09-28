@@ -21,7 +21,6 @@ Client::Client() :
 	client_information(get_client_info()),
 	basic_client_information(),
 	public_keys()
-	//contacts()
 {}
 
 void Client::register_request()
@@ -42,10 +41,7 @@ void Client::register_request()
 
 	TcpClient tcp_client(server_information.first, server_information.second);
 
-	std::string name;
-	std::cout << "Enter name: ";
-	std::cin.ignore();
-	std::getline(std::cin, name);
+	auto name = get_name();
 
 	// Make sure input is less than the required size, counting on the \0.
 	if (name.length() > sizeof(Protocol::RegisterRequest::name) - 1)
@@ -146,10 +142,7 @@ void Client::get_public_key_request()
 	TcpClient tcp_client(server_information.first, server_information.second);
 	Protocol::GetPublicKeyRequest request{};
 
-	std::string name;
-	std::cout << "Enter name: ";
-	std::cin.ignore();
-	std::getline(std::cin, name);
+	auto name = get_name();
 
 	if (basic_client_information.find(name) == std::end(basic_client_information))
 	{
@@ -192,6 +185,16 @@ void Client::get_public_key_request()
 	std::copy(std::begin(response.public_key), std::end(response.public_key), std::begin(public_key));
 	public_keys.emplace(std::make_pair(name, public_key));
 	std::cout << "Public Key received successfully!\n";
+}
+
+std::string Client::get_name()
+{
+	std::string name;
+	std::cout << "Enter name: ";
+	std::cin.ignore();
+	std::getline(std::cin, name);
+
+	return name;
 }
 
 bool Client::is_client_registered()
