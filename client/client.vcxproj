@@ -21,12 +21,10 @@
   <ItemGroup>
     <ClInclude Include="client.hpp" />
     <ClInclude Include="client_information.hpp" />
-    <ClInclude Include="contact_information.hpp" />
     <ClInclude Include="config.hpp" />
     <ClInclude Include="cryptography\AESWrapper.h" />
     <ClInclude Include="cryptography\Base64Wrapper.h" />
     <ClInclude Include="cryptography\RSAWrapper.h" />
-    <ClInclude Include="basic_information.hpp" />
     <ClInclude Include="project_exception.hpp" />
     <ClInclude Include="project_status.hpp" />
     <ClInclude Include="protocol\get_public_key_request.hpp" />
@@ -48,7 +46,6 @@
     <ClCompile Include="cryptography\AESWrapper.cpp" />
     <ClCompile Include="cryptography\Base64Wrapper.cpp" />
     <ClCompile Include="cryptography\RSAWrapper.cpp" />
-    <ClCompile Include="basic_information.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="project_exception.cpp" />
     <ClCompile Include="tcp_client.cpp" />

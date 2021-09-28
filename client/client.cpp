@@ -18,8 +18,9 @@
 
 Client::Client() :
 	server_information(get_server_info()),
-	//contacts{},
-	client_information(get_client_info())
+	client_information(get_client_info()),
+	basic_client_information(),
+	public_keys()
 {}
 
 void Client::register_request()
@@ -40,10 +41,7 @@ void Client::register_request()
 
 	TcpClient tcp_client(server_information.first, server_information.second);
 
-	std::string name;
-	std::cout << "Enter name: ";
-	std::cin.ignore();
-	std::getline(std::cin, name);
+	auto name = get_name();
 
 	// Make sure input is less than the required size, counting on the \0.
 	if (name.length() > sizeof(Protocol::RegisterRequest::name) - 1)
@@ -81,7 +79,7 @@ void Client::register_request()
 
 	ClientInformation::write_to_file(Config::me_info_filename, client_information.value());
 
-	std::cout << "registered successfully\n";
+	std::cout << "Registered successfully!\n";
 }
 
 void Client::client_list_request()
@@ -110,6 +108,7 @@ void Client::client_list_request()
 	}
 
 	size_t num_of_clients = static_cast<size_t>(response_header.payload_size) / sizeof(Protocol::ListClientResponseEntry);
+	basic_client_information.clear();  // Keep only the most updated info.
 
 	std::cout << "========================================================\n";
 	for (size_t i = 0; i < num_of_clients; i++)
@@ -123,10 +122,12 @@ void Client::client_list_request()
 		name.resize(response.name.size());
 		std::copy_if(std::begin(response.name), std::end(response.name), std::begin(name), [](char c){ return c != '\0'; });
 		auto end_of_name = name.find('\0');
-		name.resize(end_of_name + 1);
+		name.resize(end_of_name);
 
 		std::cout << "Name: " << name << "\nClient ID: " << client_id << "\n";
 		std::cout << "========================================================\n";
+
+		basic_client_information.insert({ name, response.client_id });  // Add to list.;
 	}
 }
 
@@ -141,19 +142,20 @@ void Client::get_public_key_request()
 	TcpClient tcp_client(server_information.first, server_information.second);
 	Protocol::GetPublicKeyRequest request{};
 
-	std::string client_id;
-	std::cout << "Enter Client ID: ";
-	std::cin.ignore();
-	std::getline(std::cin, client_id);
+	auto name = get_name();
 
-	// Since we receive it hex encoded, should be twice as long
-	if (client_id.length() != sizeof(Protocol::GetPublicKeyRequest::client_id) * 2)
+	if (basic_client_information.find(name) == std::end(basic_client_information))
 	{
-		std::cout << "Input isnt the right size . Should be " << sizeof(Protocol::GetPublicKeyRequest::client_id) * 2 
-			<< ". Is " << client_id.length() << "\n";
+		std::cout << "No client with that name. try refreshing the client information.\n";
 		return;
 	}
-	boost::algorithm::unhex(client_id, std::begin(request.client_id));
+	if (public_keys.find(name) != std::end(public_keys))
+	{
+		std::cout << "WARNING: Already have public key of \"" << name << "\".\n";
+	}
+
+	auto client_id = basic_client_information.at(name);
+	std::copy(std::begin(client_id), std::end(client_id), std::begin(request.client_id));
 
 	Protocol::RequestHeader request_header{};
 	std::copy(std::begin(client_information->client_id), std::end(client_information->client_id), std::begin(request_header.client_id));
@@ -174,17 +176,25 @@ void Client::get_public_key_request()
 	auto response = tcp_client.read_struct<Protocol::GetPublicKeyResponse>();
 	if (response.client_id != request.client_id)
 	{
-		std::cout << "received response with wrong client id\n";
+		std::cout << "Received response with wrong client id\n";
 		return;
 	}
 
 	std::string public_key;
+	public_key.resize(response.public_key.size());
+	std::copy(std::begin(response.public_key), std::end(response.public_key), std::begin(public_key));
+	public_keys.emplace(std::make_pair(name, public_key));
+	std::cout << "Public Key received successfully!\n";
+}
 
-	public_key.resize(response.public_key.size() * 2);  // multiply by 2 to account for the hex encoding.
-	boost::algorithm::hex(response.public_key, std::begin(public_key));
+std::string Client::get_name()
+{
+	std::string name;
+	std::cout << "Enter name: ";
+	std::cin.ignore();
+	std::getline(std::cin, name);
 
-	std::cout << "received public key: " << public_key << "\n";
-	// TODO should save the public key somehow. asked in the forum, waiting for a response.
+	return name;
 }
 
 bool Client::is_client_registered()

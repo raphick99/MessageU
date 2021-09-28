@@ -6,8 +6,9 @@
 #include "project_exception.hpp"
 #include "cryptography/Base64Wrapper.h"
 
-ClientInformation::ClientInformation(const BasicInformation::CLIENT_ID& _client_id, const std::string& _name, const std::string& _key) :
-    BasicInformation(_client_id, _name),
+ClientInformation::ClientInformation(const std::array<uint8_t, 16>& _client_id, const std::string& _name, const std::string& _key) :
+    client_id(_client_id),
+    name(_name),
     rsa_private_wrapper(_key)
 {}
 
@@ -34,7 +35,7 @@ ClientInformation ClientInformation::read_from_file(const std::string& path)
         key.push_back('\n');
     }
 
-    BasicInformation::CLIENT_ID unhexed_client_id;
+    std::array<uint8_t, 16> unhexed_client_id;
     boost::algorithm::unhex(client_id, std::begin(unhexed_client_id));
 
     key = Base64Wrapper::decode(key);

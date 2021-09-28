@@ -42,12 +42,6 @@
     <ClInclude Include="client.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="contact_information.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="basic_information.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="client_information.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -105,9 +99,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="client_information.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="basic_information.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
