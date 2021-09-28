@@ -42,9 +42,6 @@
     <ClInclude Include="client.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="contact_information.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="basic_information.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

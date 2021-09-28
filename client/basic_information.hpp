@@ -12,6 +12,6 @@ public:
 
 public:
 	BasicInformation(const std::array<uint8_t, 16>&, const std::string&);
-	~BasicInformation() = default;
+	virtual ~BasicInformation() = default;
 };
 

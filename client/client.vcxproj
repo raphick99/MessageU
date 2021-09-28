@@ -21,7 +21,6 @@
   <ItemGroup>
     <ClInclude Include="client.hpp" />
     <ClInclude Include="client_information.hpp" />
-    <ClInclude Include="contact_information.hpp" />
     <ClInclude Include="config.hpp" />
     <ClInclude Include="cryptography\AESWrapper.h" />
     <ClInclude Include="cryptography\Base64Wrapper.h" />

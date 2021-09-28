@@ -5,7 +5,6 @@
 #include <utility>
 #include <unordered_map>
 #include "protocol/response_code.hpp"
-#include "contact_information.hpp"
 #include "client_information.hpp"
 
 class Client
@@ -14,7 +13,7 @@ private:
 	std::pair<std::string, std::string> server_information;
 	std::optional<ClientInformation> client_information;
 	std::unordered_map<std::string, std::array<uint8_t, 16>> basic_client_information;
-	//std::unordered_map<std::array<uint8_t, 16>, ContactInformation> contacts;
+	std::unordered_map<std::string, RSAPublicWrapper> public_keys;
 
 public:
 	Client();
