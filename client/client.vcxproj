@@ -37,6 +37,8 @@
     <ClInclude Include="protocol\request_code.hpp" />
     <ClInclude Include="protocol\response.hpp" />
     <ClInclude Include="protocol\response_code.hpp" />
+    <ClInclude Include="protocol\send_message_request.hpp" />
+    <ClInclude Include="protocol\send_message_response.hpp" />
     <ClInclude Include="tcp_client.hpp" />
     <ClInclude Include="utility.hpp" />
   </ItemGroup>

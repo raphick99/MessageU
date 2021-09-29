@@ -1,5 +1,4 @@
 import socketserver
-import itertools
 import logging
 import uuid
 import database
@@ -11,8 +10,6 @@ log = logging.getLogger(__name__)
 
 
 class ClientHandler(socketserver.StreamRequestHandler):
-    message_counter = itertools.count()
-
     def handle_register_request(self, request):
         db = database.Database()
 
@@ -48,6 +45,14 @@ class ClientHandler(socketserver.StreamRequestHandler):
             public_key=public_key,
         )
 
+    def handle_send_message_request(self, request):
+        db = database.Database()
+        message_id = db.add_message(request.to_client, request.client_id, request.message_type.value, request.content)
+        return protocol.SendMessageResponse(
+            client_id=request.to_client,
+            message_id=message_id,
+        )
+
     def handle(self):
         request = protocol.parse(self.rfile)
         log.debug(f'received: {request}')
@@ -57,6 +62,7 @@ class ClientHandler(socketserver.StreamRequestHandler):
                 protocol.RequestCode.Register: self.handle_register_request,
                 protocol.RequestCode.ListUsers: self.handle_client_list_request,
                 protocol.RequestCode.GetPublicKey: self.handle_get_public_key_request,
+                protocol.RequestCode.SendMessage: self.handle_send_message_request,
             }[request.code](request)
 
         except exceptions.GeneralServerException as e:
