@@ -18,6 +18,7 @@ int main(void)
             std::cout << "10) Register\n";
             std::cout << "20) Request for clients list\n";
             std::cout << "30) Request for public key\n";
+            std::cout << "51) Send a request for symmetric key\n";
             std::cout << "0) Exit client\n";
             std::cout << "? ";
             if (!(std::cin >> input))
@@ -38,6 +39,9 @@ int main(void)
                 break;
             case 30:
                 client.get_public_key_request();
+                break;
+            case 51:
+                client.send_symmetric_key_request();
                 break;
             case 0:
                 return 0;

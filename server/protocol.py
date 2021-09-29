@@ -18,6 +18,13 @@ class RequestCode(enum.Enum):
     PullMessages = 1004
 
 
+class MessageType(enum.Enum):
+    RequestSymmetricKey = 1
+    SendSymmetricKey = 2
+    SendTextMessage = 3
+    SendFile = 4
+
+
 @dataclasses.dataclass
 class RequestHeader:
     client_id: bytes
@@ -87,12 +94,29 @@ class GetPublicKeyRequest(RequestHeader):
         return cls(header.client_id, header.code, header.payload_size, client_id)
 
 
+@dataclasses.dataclass
+class SendMessageRequest(RequestHeader):
+    to_client: bytes
+    message_type: MessageType
+    content: bytes
+
+    layout = struct.Struct('<16sBI')
+
+    @classmethod
+    def parse(cls, header: RequestHeader, connection):
+        to_client, message_type, content_size = cls.layout.unpack(connection.read(cls.layout.size))
+        message_type = MessageType(message_type)
+        content = connection.read(content_size)  # TODO should possibly read in chunks
+        return cls(header.client_id, header.code, header.payload_size, to_client, message_type, content)
+
+
 def parse(data):
     header = RequestHeader.parse_header(data)
     return {
         RequestCode.Register: RegisterRequest.parse,
         RequestCode.ListUsers: ListUsersRequest.parse,
         RequestCode.GetPublicKey: GetPublicKeyRequest.parse,
+        RequestCode.SendMessage: SendMessageRequest.parse,
     }[header.code](header, data)
 
 
@@ -103,13 +127,6 @@ class ResponseCode(enum.Enum):
     SendMessage = 2003
     PullMessages = 2004
     GeneralError = 9000
-
-
-class MessageType(enum.Enum):
-    RequestSymmetricKey = 1
-    SendSymmetricKey = 2
-    SendTextMessage = 3
-    SendFile = 4
 
 
 @dataclasses.dataclass
@@ -179,3 +196,18 @@ class GetPublicKeyResponse(ResponseHeader):
 
     def _build_payload(self):
         return self.layout.pack(self.client_id, self.public_key)
+
+
+@dataclasses.dataclass
+class SendMessageResponse(ResponseHeader):
+    client_id: bytes
+    message_id: int
+
+    layout = struct.Struct('<16sI')
+
+    @property
+    def code(self):
+        return ResponseCode.SendMessage
+
+    def _build_payload(self):
+        return self.layout.pack(self.client_id, self.message_id)

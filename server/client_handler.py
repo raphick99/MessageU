@@ -48,6 +48,17 @@ class ClientHandler(socketserver.StreamRequestHandler):
             public_key=public_key,
         )
 
+    def handle_send_message_request(self, request):
+        db = database.Database()
+        with self.message_counter_lock:
+            message_id = next(self.message_counter)
+
+        db.add_message(message_id, request.to_client, request.client_id, request.message_type.value, request.content)
+        return protocol.SendMessageResponse(
+            client_id=request.to_client,
+            message_id=message_id,
+        )
+
     def handle(self):
         request = protocol.parse(self.rfile)
         log.debug(f'received: {request}')
@@ -57,6 +68,7 @@ class ClientHandler(socketserver.StreamRequestHandler):
                 protocol.RequestCode.Register: self.handle_register_request,
                 protocol.RequestCode.ListUsers: self.handle_client_list_request,
                 protocol.RequestCode.GetPublicKey: self.handle_get_public_key_request,
+                protocol.RequestCode.SendMessage: self.handle_send_message_request,
             }[request.code](request)
 
         except exceptions.GeneralServerException as e:

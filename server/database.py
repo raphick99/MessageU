@@ -19,6 +19,14 @@ class Database:
     @multithread_protect
     def __init__(self):
         self.connection = sqlite3.connect(DATABASE_FILE)
+        self.connection.text_factory = bytes
+        self.connection.execute(
+            'CREATE TABLE IF NOT EXISTS clients('
+            'ID BLOB PRIMARY KEY,'
+            'Name TEXT UNIQUE,'
+            'PublicKey BLOB,'
+            'LastSeen DATE)'
+        )
         self.connection.execute(
             'CREATE TABLE IF NOT EXISTS messages('
             'ID INTEGER PRIMARY KEY,'
@@ -27,19 +35,16 @@ class Database:
             'Type INTEGER,'
             'Content BLOB)'
         )
-        self.connection.execute(
-            'CREATE TABLE IF NOT EXISTS clients('
-            'ID BLOB PRIMARY KEY,'
-            'Name TEXT UNIQUE,'
-            'PublicKey BLOB,'
-            'LastSeen DATE)'
-        )
         self.connection.commit()
 
     @multithread_protect
-    def add_message(self, to_client, from_client, type, content):
-        # todo need to update client last seen
-        pass
+    def add_message(self, message_id, to_client, from_client, message_type, content):
+        self.connection.execute('UPDATE clients SET LastSeen = ? WHERE ID = ?', (self.get_current_time(), to_client))
+        self.connection.execute(
+            'INSERT INTO messages values (?, ?, ?, ?, ?)',
+            (message_id, to_client, from_client, message_type, content)
+        )
+        self.connection.commit()
 
     @multithread_protect
     def add_client(self, client_id, name, public_key):

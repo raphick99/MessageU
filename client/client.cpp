@@ -15,6 +15,8 @@
 #include "protocol/list_client_response_entry.hpp"
 #include "protocol/get_public_key_request.hpp"
 #include "protocol/get_public_key_response.hpp"
+#include "protocol/send_message_request.hpp"
+#include "protocol/send_message_response.hpp"
 
 Client::Client() :
 	server_information(get_server_info()),
@@ -186,6 +188,53 @@ void Client::get_public_key_request()
 	std::copy(std::begin(response.public_key), std::end(response.public_key), std::begin(public_key));
 	public_keys.emplace(std::make_pair(name, public_key));
 	std::cout << "Public Key received successfully!\n";
+}
+
+void Client::send_symmetric_key_request()
+{
+	if (!is_client_registered())
+	{
+		std::cout << "Client must be registered. returning...\n";
+		return;
+	}
+
+	auto name = get_name();
+	if (basic_client_information.find(name) == std::end(basic_client_information))
+	{
+		std::cout << "No client with that name. try refreshing the client information.\n";
+		return;
+	}
+	auto client_id = basic_client_information.at(name);
+
+	Protocol::SendMessageRequest request{};
+	std::copy(std::begin(client_id), std::end(client_id), std::begin(request.client_id));
+	request.messsage_type = Protocol::MessageType::RequestSymmetricKey;
+	request.payload_size = 0;  // No payload for RequestSymmetricKey
+
+	Protocol::RequestHeader request_header{};
+	std::copy(std::begin(client_information->client_id), std::end(client_information->client_id), std::begin(request_header.client_id));
+	request_header.request_code = Protocol::RequestCode::MessageSend;
+	request_header.version = Config::version;
+	request_header.payload_size = sizeof(request);
+
+	TcpClient tcp_client(server_information.first, server_information.second);
+	tcp_client.write_struct(request_header);
+	tcp_client.write_struct(request);
+
+	auto response_header = tcp_client.read_struct<Protocol::ResponseHeader>();
+	if (!received_expected_response_code(Protocol::ResponseCode::MessageSend, response_header.response_code))
+	{
+		return;
+	}
+
+	auto response = tcp_client.read_struct<Protocol::SendMessageResponse>();
+	if (response.client_id != request.client_id)
+	{
+		std::cout << "Received response with wrong client id\n";
+		return;
+	}
+
+	std::cout << "Message ID: " << response.message_id << "\n";
 }
 
 std::string Client::get_name()
