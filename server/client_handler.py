@@ -1,5 +1,4 @@
 import socketserver
-import itertools
 import logging
 import uuid
 import database
@@ -11,8 +10,6 @@ log = logging.getLogger(__name__)
 
 
 class ClientHandler(socketserver.StreamRequestHandler):
-    message_counter = itertools.count()
-
     def handle_register_request(self, request):
         db = database.Database()
 
@@ -50,10 +47,7 @@ class ClientHandler(socketserver.StreamRequestHandler):
 
     def handle_send_message_request(self, request):
         db = database.Database()
-        with self.message_counter_lock:
-            message_id = next(self.message_counter)
-
-        db.add_message(message_id, request.to_client, request.client_id, request.message_type.value, request.content)
+        message_id = db.add_message(request.to_client, request.client_id, request.message_type.value, request.content)
         return protocol.SendMessageResponse(
             client_id=request.to_client,
             message_id=message_id,
