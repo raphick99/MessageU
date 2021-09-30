@@ -11,6 +11,7 @@
 #include "cryptography/RSAWrapper.h"
 #include "cryptography/AESWrapper.h"
 #include "protocol/pull_messages_response_entry.hpp"
+#include "protocol/request.hpp"
 
 class Client
 {
@@ -41,6 +42,7 @@ private:
 
 private:
 	void print_message(const std::array<uint8_t, 16>&, const std::string&);
+	Protocol::RequestHeader build_request(Protocol::RequestCode, size_t);
 	std::string get_name();
 	bool is_client_registered();
 	static bool received_expected_response_code(Protocol::ResponseCode, Protocol::ResponseCode);

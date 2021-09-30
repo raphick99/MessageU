@@ -61,10 +61,7 @@ void Client::register_request()
 	std::copy(std::begin(name), std::end(name), std::begin(request.name));
 	std::copy(std::begin(public_key), std::end(public_key), std::begin(request.public_key));
 
-	Protocol::RequestHeader request_header{};
-	request_header.request_code = Protocol::RequestCode::Register;
-	request_header.version = Config::version;
-	request_header.payload_size = sizeof(request);
+	auto request_header = build_request(Protocol::RequestCode::Register, sizeof(request));
 
 	TcpClient tcp_client(server_information.first, server_information.second);
 
@@ -94,12 +91,7 @@ void Client::client_list_request()
 		return;
 	}
 
-	Protocol::RequestHeader request_header{};
-
-	std::copy(std::begin(client_information->client_id), std::end(client_information->client_id), std::begin(request_header.client_id));
-	request_header.request_code = Protocol::RequestCode::ListUsers;
-	request_header.version = Config::version;
-	request_header.payload_size = 0;  // No payload, only request
+	auto request_header = build_request(Protocol::RequestCode::ListUsers, 0);
 
 	TcpClient tcp_client(server_information.first, server_information.second);
 
@@ -160,11 +152,7 @@ void Client::get_public_key_request()
 	Protocol::GetPublicKeyRequest request{};
 	std::copy(std::begin(client_id), std::end(client_id), std::begin(request.client_id));
 
-	Protocol::RequestHeader request_header{};
-	std::copy(std::begin(client_information->client_id), std::end(client_information->client_id), std::begin(request_header.client_id));
-	request_header.request_code = Protocol::RequestCode::GetPublicKey;
-	request_header.version = Config::version;
-	request_header.payload_size = sizeof(request);
+	auto request_header = build_request(Protocol::RequestCode::GetPublicKey, sizeof(request));
 
 	TcpClient tcp_client(server_information.first, server_information.second);
 
@@ -213,11 +201,7 @@ void Client::send_symmetric_key_request()
 	request.messsage_type = Protocol::MessageType::RequestSymmetricKey;
 	request.payload_size = 0;  // No payload for RequestSymmetricKey
 
-	Protocol::RequestHeader request_header{};
-	std::copy(std::begin(client_information->client_id), std::end(client_information->client_id), std::begin(request_header.client_id));
-	request_header.request_code = Protocol::RequestCode::MessageSend;
-	request_header.version = Config::version;
-	request_header.payload_size = sizeof(request);
+	auto request_header = build_request(Protocol::RequestCode::MessageSend, sizeof(request));
 
 	TcpClient tcp_client(server_information.first, server_information.second);
 	tcp_client.write_struct(request_header);
@@ -269,11 +253,7 @@ void Client::send_symmetric_key()
 	request.messsage_type = Protocol::MessageType::SendSymmetricKey;
 	request.payload_size = encrypted_symmetric_key.length();
 
-	Protocol::RequestHeader request_header{};
-	std::copy(std::begin(client_information->client_id), std::end(client_information->client_id), std::begin(request_header.client_id));
-	request_header.request_code = Protocol::RequestCode::MessageSend;
-	request_header.version = Config::version;
-	request_header.payload_size = sizeof(request) + request.payload_size;
+	auto request_header = build_request(Protocol::RequestCode::MessageSend, sizeof(request) + request.payload_size);
 
 	TcpClient tcp_client(server_information.first, server_information.second);
 	tcp_client.write_struct(request_header);
@@ -304,11 +284,7 @@ void Client::pull_messages_request()
 		return;
 	}
 
-	Protocol::RequestHeader request_header{};
-	std::copy(std::begin(client_information->client_id), std::end(client_information->client_id), std::begin(request_header.client_id));
-	request_header.request_code = Protocol::RequestCode::PullMessages;
-	request_header.version = Config::version;
-	request_header.payload_size = 0;  // No payload
+	auto request_header = build_request(Protocol::RequestCode::PullMessages, 0);
 
 	TcpClient tcp_client(server_information.first, server_information.second);
 	tcp_client.write_struct(request_header);
@@ -379,11 +355,7 @@ void Client::send_text_message_request()
 	request.messsage_type = Protocol::MessageType::SendTextMessage;
 	request.payload_size = encrypted_message.length();
 
-	Protocol::RequestHeader request_header{};
-	std::copy(std::begin(client_information->client_id), std::end(client_information->client_id), std::begin(request_header.client_id));
-	request_header.request_code = Protocol::RequestCode::MessageSend;
-	request_header.version = Config::version;
-	request_header.payload_size = sizeof(request) + request.payload_size;
+	auto request_header = build_request(Protocol::RequestCode::MessageSend, sizeof(request) + request.payload_size);
 
 	TcpClient tcp_client(server_information.first, server_information.second);
 	tcp_client.write_struct(request_header);
@@ -451,6 +423,21 @@ void Client::print_message(const std::array<uint8_t, 16>& client_id, const std::
 	std::cout << "Content:\n";
 	std::cout << content << "\n";
 	std::cout << "-----<EOM>-----\n";
+}
+
+Protocol::RequestHeader Client::build_request(Protocol::RequestCode request_code, size_t payload_size)
+{
+	Protocol::RequestHeader request_header{};
+
+	if (is_client_registered())
+	{
+		std::copy(std::begin(client_information->client_id), std::end(client_information->client_id), std::begin(request_header.client_id));
+	}
+	request_header.version = Config::version;
+	request_header.request_code = request_code;
+	request_header.payload_size = static_cast<uint32_t>(payload_size);
+
+	return request_header;
 }
 
 std::string Client::get_name()
