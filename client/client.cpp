@@ -149,14 +149,14 @@ void Client::get_public_key_request()
 		std::cout << "No client with that name. try refreshing the client information.\n";
 		return;
 	}
-	if (public_keys.find(name) != std::end(public_keys))
+
+	auto client_id = basic_client_information.at(name);
+	if (public_keys.find(client_id) != std::end(public_keys))
 	{
 		std::cout << "WARNING: Already have public key of \"" << name << "\".\n";
 	}
 
 	Protocol::GetPublicKeyRequest request{};
-
-	auto client_id = basic_client_information.at(name);
 	std::copy(std::begin(client_id), std::end(client_id), std::begin(request.client_id));
 
 	Protocol::RequestHeader request_header{};
@@ -187,7 +187,7 @@ void Client::get_public_key_request()
 	std::string public_key;
 	public_key.resize(response.public_key.size());
 	std::copy(std::begin(response.public_key), std::end(response.public_key), std::begin(public_key));
-	public_keys.emplace(std::make_pair(name, public_key));
+	public_keys.emplace(std::make_pair(client_id, public_key));
 	std::cout << "Public Key received successfully!\n";
 }
 
