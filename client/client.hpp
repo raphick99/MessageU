@@ -19,6 +19,7 @@ private:
 	std::optional<ClientInformation> client_information;
 	std::unordered_map<std::string, std::array<uint8_t, 16>> basic_client_information;
 	std::map<std::array<uint8_t, 16>, RSAPublicWrapper> public_keys;
+	std::map<std::array<uint8_t, 16>, AESWrapper> symmetric_keys;
 
 public:
 	Client();
@@ -32,9 +33,9 @@ public:
 	void pull_messages_request();
 
 private:
-	void handle_symmetric_key_request(const Protocol::PullMessagesResponseEntry&, const TcpClient&);
-	void handle_symmetric_key(const Protocol::PullMessagesResponseEntry&, const TcpClient&);
-	void handle_text_message(const Protocol::PullMessagesResponseEntry&, const TcpClient&);
+	void handle_symmetric_key_request(const Protocol::PullMessagesResponseEntry&);
+	void handle_symmetric_key(const Protocol::PullMessagesResponseEntry&, TcpClient&);
+	void handle_text_message(const Protocol::PullMessagesResponseEntry&, TcpClient&);
 
 private:
 	std::string get_name();
