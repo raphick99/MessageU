@@ -19,6 +19,7 @@ int main(void)
             std::cout << "20) Request for clients list\n";
             std::cout << "30) Request for public key\n";
             std::cout << "40) Request for waiting messages\n";
+            std::cout << "50) Send a text message\n";
             std::cout << "51) Send a request for symmetric key\n";
             std::cout << "52) Send your symmetric key\n";
             std::cout << "0) Exit client\n";
@@ -44,6 +45,9 @@ int main(void)
                 break;
             case 40:
                 client.pull_messages_request();
+                break;
+            case 50:
+                client.send_text_message_request();
                 break;
             case 51:
                 client.send_symmetric_key_request();
