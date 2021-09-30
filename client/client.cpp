@@ -282,10 +282,9 @@ void Client::pull_messages_request()
 			std::cout << "Not Supported in this version of the client.\n";
 			break;
 		default:
-			// Throw exception
+			throw ProjectException(ProjectStatus::Client_InvalidMessageType);
 			break;
 		}
-		//auto current_message_content = tcp_client.read_string(current_message_header.payload_size);  // No buffering.
 		already_read += sizeof(Protocol::PullMessagesResponseEntry) + current_message_header.payload_size;
 	}
 }
