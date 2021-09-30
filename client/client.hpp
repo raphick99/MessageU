@@ -12,15 +12,16 @@
 #include "cryptography/AESWrapper.h"
 #include "protocol/pull_messages_response_entry.hpp"
 #include "protocol/request.hpp"
+#include "protocol/client_id.hpp"
 
 class Client
 {
 private:
 	std::pair<std::string, std::string> server_information;
 	std::optional<ClientInformation> client_information;
-	std::unordered_map<std::string, std::array<uint8_t, 16>> basic_client_information;
-	std::map<std::array<uint8_t, 16>, RSAPublicWrapper> public_keys;
-	std::map<std::array<uint8_t, 16>, AESWrapper> symmetric_keys;
+	std::unordered_map<std::string, Protocol::ClientID> basic_client_information;
+	std::map<Protocol::ClientID, RSAPublicWrapper> public_keys;
+	std::map<Protocol::ClientID, AESWrapper> symmetric_keys;
 
 public:
 	Client();
@@ -41,7 +42,7 @@ private:
 	void handle_text_message(const Protocol::PullMessagesResponseEntry&, TcpClient&);
 
 private:
-	void print_message(const std::array<uint8_t, 16>&, const std::string&);
+	void print_message(const Protocol::ClientID&, const std::string&);
 	Protocol::RequestHeader build_request(Protocol::RequestCode, size_t);
 	std::string get_name();
 	bool is_client_registered();

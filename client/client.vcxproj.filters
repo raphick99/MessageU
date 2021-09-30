@@ -84,6 +84,9 @@
     <ClInclude Include="protocol\pull_messages_response_entry.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="protocol\client_id.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

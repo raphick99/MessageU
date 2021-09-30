@@ -1,18 +1,17 @@
 #pragma once
 
 #include <string>
-#include <array>
-#include <cstdint>
 #include "cryptography/RSAWrapper.h"
+#include "protocol/client_id.hpp"
 
 class ClientInformation
 {
 public:
-	const std::array<uint8_t, 16> client_id;
+	const Protocol::ClientID client_id;
 	const std::string name;
 	RSAPrivateWrapper rsa_private_wrapper;
 
-	ClientInformation(const std::array<uint8_t, 16>&, const std::string&, const std::string&);
+	ClientInformation(const Protocol::ClientID&, const std::string&, const std::string&);
 	~ClientInformation() = default;
 
 	static ClientInformation read_from_file(const std::string&);

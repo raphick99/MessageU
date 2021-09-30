@@ -407,7 +407,7 @@ void Client::handle_text_message(const Protocol::PullMessagesResponseEntry& entr
 	print_message(entry.client_id, message);
 }
 
-void Client::print_message(const std::array<uint8_t, 16>& client_id, const std::string& content)
+void Client::print_message(const Protocol::ClientID& client_id, const std::string& content)
 {
 	std::string name("<unknown>");
 	for (const auto& [current_name, current_client_id] : basic_client_information)
