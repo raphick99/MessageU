@@ -291,39 +291,23 @@ void Client::pull_messages_request()
 
 void Client::handle_symmetric_key_request(const Protocol::PullMessagesResponseEntry& entry)
 {
-	std::cout << "Received symmetric key request.\n";
-	if (public_keys.find(entry.client_id) == std::end(public_keys))
-	{
-		std::cout << "No public key for requested client. Not generating symmetric key.\n";
-		return;
-	}
-	if (symmetric_keys.find(entry.client_id) != std::end(symmetric_keys))
-	{
-		std::cout << "WARNING: Already have symmetric key for requested client. Overwriting previous one.\n";
-	}
-
-	symmetric_keys.emplace(std::make_pair(entry.client_id, AESWrapper::GenerateKey()));
+	print_message(entry.client_id, "Request for symmetric key");
 }
 
 void Client::handle_symmetric_key(const Protocol::PullMessagesResponseEntry& entry, TcpClient& tcp_client)
 {
-	std::cout << "Received symmetric key response.\n";
-	if (symmetric_keys.find(entry.client_id) != std::end(symmetric_keys))
-	{
-		std::cout << "WARNING: Already have symmetric key for client. Overwriting previous one.\n";
-	}
-
 	auto encrypted_symmetric_key = tcp_client.read_string(entry.payload_size);
 	auto symmetric_key = client_information->rsa_private_wrapper.decrypt(encrypted_symmetric_key);
 	symmetric_keys.emplace(std::make_pair(entry.client_id, symmetric_key));
+
+	print_message(entry.client_id, "symmetric key received");
 }
 
 void Client::handle_text_message(const Protocol::PullMessagesResponseEntry& entry, TcpClient& tcp_client)
 {
-	std::cout << "Received text message.\n";
 	if (symmetric_keys.find(entry.client_id) == std::end(symmetric_keys))
 	{
-		std::cout << "No symmetric key for requested client. Cannot decrypt message. continuing.\n";
+		print_message(entry.client_id, "can't decrypt message");
 		tcp_client.read_string(entry.payload_size);  // remove payload from incoming buffer.
 		return;
 	}
@@ -331,19 +315,24 @@ void Client::handle_text_message(const Protocol::PullMessagesResponseEntry& entr
 	auto encrypted_message = tcp_client.read_string(entry.payload_size);
 	auto message = symmetric_keys.at(entry.client_id).decrypt(encrypted_message);
 
-	std::string client_name("<unknown>");
-	for (const auto& [name, client_id] : basic_client_information)
+	print_message(entry.client_id, message);
+}
+
+void Client::print_message(const std::array<uint8_t, 16>& client_id, const std::string& content)
+{
+	std::string name("<unknown>");
+	for (const auto& [current_name, current_client_id] : basic_client_information)
 	{
-		if (client_id == entry.client_id)
+		if (client_id == current_client_id)
 		{
-			client_name = name;
+			name = current_name;
 			break;
 		}
 	}
 
-	std::cout << "From: " << client_name << "\n";
+	std::cout << "From: " << name << "\n";
 	std::cout << "Content:\n";
-	std::cout << message << "\n";
+	std::cout << content << "\n";
 	std::cout << "-----<EOM>-----\n";
 }
 

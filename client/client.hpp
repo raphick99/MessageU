@@ -38,6 +38,7 @@ private:
 	void handle_text_message(const Protocol::PullMessagesResponseEntry&, TcpClient&);
 
 private:
+	void print_message(const std::array<uint8_t, 16>&, const std::string&);
 	std::string get_name();
 	bool is_client_registered();
 	static bool received_expected_response_code(Protocol::ResponseCode, Protocol::ResponseCode);
