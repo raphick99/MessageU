@@ -53,6 +53,15 @@ class ClientHandler(socketserver.StreamRequestHandler):
             message_id=message_id,
         )
 
+    def handle_pull_messages_request(self, request):
+        db = database.Database()
+
+        messages = db.extract_client_messages(request.client_id)
+
+        return protocol.PullMessagesResponse(
+            message_list=messages,
+        )
+
     def handle(self):
         request = protocol.parse(self.rfile)
         log.debug(f'received: {request}')
@@ -63,6 +72,7 @@ class ClientHandler(socketserver.StreamRequestHandler):
                 protocol.RequestCode.ListUsers: self.handle_client_list_request,
                 protocol.RequestCode.GetPublicKey: self.handle_get_public_key_request,
                 protocol.RequestCode.SendMessage: self.handle_send_message_request,
+                protocol.RequestCode.PullMessages: self.handle_pull_messages_request,
             }[request.code](request)
 
         except exceptions.GeneralServerException as e:

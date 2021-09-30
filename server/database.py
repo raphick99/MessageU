@@ -77,6 +77,17 @@ class Database:
         self.connection.commit()
         return next_message_id
 
+    @multithread_protect
+    def extract_client_messages(self, client_id):
+        messages = self.connection.execute(
+            'SELECT FromClient, ID, Type, Content FROM messages'
+            ' WHERE ToClient = ?',
+            (client_id,)
+        ).fetchall()
+        self.connection.execute('DELETE FROM messages WHERE ToClient = ?', (client_id,))
+        self.connection.commit()
+        return messages
+
     @staticmethod
     def get_current_time():
         return datetime.now().strftime('%Y-%m-%d %X')

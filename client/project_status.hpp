@@ -14,6 +14,7 @@ enum class ProjectStatus
 
 	Client_FileDoesntExist,
 	Client_InvalidServerInfo,
+	Client_InvalidMessageType,
 
 	ClientInformation_FileDoesntExist,
 

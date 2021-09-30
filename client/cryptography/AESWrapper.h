@@ -12,13 +12,17 @@ private:
 	AESWrapper(const AESWrapper& aes);
 public:
 	static unsigned char* GenerateKey(unsigned char* buffer, unsigned int length);
+	static std::string GenerateKey();
 
 	AESWrapper();
 	AESWrapper(const unsigned char* key, unsigned int size);
+	AESWrapper(const std::string& key);
 	~AESWrapper();
 
-	const unsigned char* getKey() const;
+	std::string getKey() const;
 
 	std::string encrypt(const char* plain, unsigned int length);
+	std::string encrypt(const std::string& plain);
 	std::string decrypt(const char* cipher, unsigned int length);
+	std::string decrypt(const std::string& cipher);
 };

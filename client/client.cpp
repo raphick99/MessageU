@@ -17,12 +17,14 @@
 #include "protocol/get_public_key_response.hpp"
 #include "protocol/send_message_request.hpp"
 #include "protocol/send_message_response.hpp"
+#include "protocol/pull_messages_response_entry.hpp"
 
 Client::Client() :
 	server_information(get_server_info()),
 	client_information(get_client_info()),
 	basic_client_information(),
-	public_keys()
+	public_keys(),
+	symmetric_keys()
 {}
 
 void Client::register_request()
@@ -130,7 +132,7 @@ void Client::client_list_request()
 		std::cout << "Name: " << name << "\nClient ID: " << client_id << "\n";
 		std::cout << "========================================================\n";
 
-		basic_client_information.insert({ name, response.client_id });  // Add to list.;
+		basic_client_information.emplace(std::make_pair(name, response.client_id));  // Add to list.;
 	}
 }
 
@@ -148,14 +150,14 @@ void Client::get_public_key_request()
 		std::cout << "No client with that name. try refreshing the client information.\n";
 		return;
 	}
-	if (public_keys.find(name) != std::end(public_keys))
+
+	auto client_id = basic_client_information.at(name);
+	if (public_keys.find(client_id) != std::end(public_keys))
 	{
 		std::cout << "WARNING: Already have public key of \"" << name << "\".\n";
 	}
 
 	Protocol::GetPublicKeyRequest request{};
-
-	auto client_id = basic_client_information.at(name);
 	std::copy(std::begin(client_id), std::end(client_id), std::begin(request.client_id));
 
 	Protocol::RequestHeader request_header{};
@@ -186,7 +188,7 @@ void Client::get_public_key_request()
 	std::string public_key;
 	public_key.resize(response.public_key.size());
 	std::copy(std::begin(response.public_key), std::end(response.public_key), std::begin(public_key));
-	public_keys.emplace(std::make_pair(name, public_key));
+	public_keys.emplace(std::make_pair(client_id, public_key));
 	std::cout << "Public Key received successfully!\n";
 }
 
@@ -235,6 +237,114 @@ void Client::send_symmetric_key_request()
 	}
 
 	std::cout << "Message ID: " << response.message_id << "\n";
+}
+
+void Client::pull_messages_request()
+{
+	if (!is_client_registered())
+	{
+		std::cout << "Client must be registered. returning...\n";
+		return;
+	}
+
+	Protocol::RequestHeader request_header{};
+	std::copy(std::begin(client_information->client_id), std::end(client_information->client_id), std::begin(request_header.client_id));
+	request_header.request_code = Protocol::RequestCode::PullMessages;
+	request_header.version = Config::version;
+	request_header.payload_size = 0;  // No payload
+
+	TcpClient tcp_client(server_information.first, server_information.second);
+	tcp_client.write_struct(request_header);
+
+	auto response_header = tcp_client.read_struct<Protocol::ResponseHeader>();
+	if (!received_expected_response_code(Protocol::ResponseCode::PullMessages, response_header.response_code))
+	{
+		return;
+	}
+
+	size_t already_read = 0;
+	while (already_read < response_header.payload_size)
+	{
+		auto current_message_header = tcp_client.read_struct<Protocol::PullMessagesResponseEntry>();
+		
+		switch (current_message_header.message_type)
+		{
+		case Protocol::MessageType::RequestSymmetricKey:
+			handle_symmetric_key_request(current_message_header);
+			break;
+		case Protocol::MessageType::SendSymmetricKey:
+			handle_symmetric_key(current_message_header, tcp_client);
+			break;
+		case Protocol::MessageType::SendTextMessage:
+			handle_text_message(current_message_header, tcp_client);
+			break;
+		case Protocol::MessageType::SendFile:
+			std::cout << "Not Supported in this version of the client.\n";
+			break;
+		default:
+			throw ProjectException(ProjectStatus::Client_InvalidMessageType);
+			break;
+		}
+		already_read += sizeof(Protocol::PullMessagesResponseEntry) + current_message_header.payload_size;
+	}
+}
+
+void Client::handle_symmetric_key_request(const Protocol::PullMessagesResponseEntry& entry)
+{
+	std::cout << "Received symmetric key request.\n";
+	if (public_keys.find(entry.client_id) == std::end(public_keys))
+	{
+		std::cout << "No public key for requested client. Not generating symmetric key.\n";
+		return;
+	}
+	if (symmetric_keys.find(entry.client_id) != std::end(symmetric_keys))
+	{
+		std::cout << "WARNING: Already have symmetric key for requested client. Overwriting previous one.\n";
+	}
+
+	symmetric_keys.emplace(std::make_pair(entry.client_id, AESWrapper::GenerateKey()));
+}
+
+void Client::handle_symmetric_key(const Protocol::PullMessagesResponseEntry& entry, TcpClient& tcp_client)
+{
+	std::cout << "Received symmetric key response.\n";
+	if (symmetric_keys.find(entry.client_id) != std::end(symmetric_keys))
+	{
+		std::cout << "WARNING: Already have symmetric key for client. Overwriting previous one.\n";
+	}
+
+	auto encrypted_symmetric_key = tcp_client.read_string(entry.payload_size);
+	auto symmetric_key = client_information->rsa_private_wrapper.decrypt(encrypted_symmetric_key);
+	symmetric_keys.emplace(std::make_pair(entry.client_id, symmetric_key));
+}
+
+void Client::handle_text_message(const Protocol::PullMessagesResponseEntry& entry, TcpClient& tcp_client)
+{
+	std::cout << "Received text message.\n";
+	if (symmetric_keys.find(entry.client_id) == std::end(symmetric_keys))
+	{
+		std::cout << "No symmetric key for requested client. Cannot decrypt message. continuing.\n";
+		tcp_client.read_string(entry.payload_size);  // remove payload from incoming buffer.
+		return;
+	}
+
+	auto encrypted_message = tcp_client.read_string(entry.payload_size);
+	auto message = symmetric_keys.at(entry.client_id).decrypt(encrypted_message);
+
+	std::string client_name("<unknown>");
+	for (const auto& [name, client_id] : basic_client_information)
+	{
+		if (client_id == entry.client_id)
+		{
+			client_name = name;
+			break;
+		}
+	}
+
+	std::cout << "From: " << client_name << "\n";
+	std::cout << "Content:\n";
+	std::cout << message << "\n";
+	std::cout << "-----<EOM>-----\n";
 }
 
 std::string Client::get_name()
