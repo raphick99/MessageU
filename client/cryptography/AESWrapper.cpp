@@ -27,13 +27,19 @@ AESWrapper::AESWrapper(const unsigned char* key, unsigned int length)
 	memcpy_s(_key, DEFAULT_KEYLENGTH, key, length);
 }
 
+AESWrapper::AESWrapper(const std::string& key)
+{
+	if (key.length() != DEFAULT_KEYLENGTH)
+		throw std::length_error("key length must be 16 bytes");
+	memcpy_s(_key, DEFAULT_KEYLENGTH, key.data(), key.length());
+}
+
 AESWrapper::~AESWrapper()
 {
 }
-
-const unsigned char* AESWrapper::getKey() const 
-{ 
-	return _key; 
+std::string AESWrapper::getKey() const
+{
+	return std::string(reinterpret_cast<const char*>(_key), DEFAULT_KEYLENGTH);
 }
 
 std::string AESWrapper::encrypt(const char* plain, unsigned int length)
@@ -51,6 +57,11 @@ std::string AESWrapper::encrypt(const char* plain, unsigned int length)
 	return cipher;
 }
 
+std::string AESWrapper::encrypt(const std::string& plain)
+{
+	return encrypt(plain.c_str(), plain.length());
+}
+
 
 std::string AESWrapper::decrypt(const char* cipher, unsigned int length)
 {
@@ -65,4 +76,9 @@ std::string AESWrapper::decrypt(const char* cipher, unsigned int length)
 	stfDecryptor.MessageEnd();
 
 	return decrypted;
+}
+
+std::string AESWrapper::decrypt(const std::string& cipher)
+{
+	return decrypt(cipher.c_str(), cipher.length());
 }
