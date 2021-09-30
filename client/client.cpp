@@ -346,6 +346,66 @@ void Client::pull_messages_request()
 	}
 }
 
+void Client::send_text_message_request()
+{
+	if (!is_client_registered())
+	{
+		std::cout << "Client must be registered. returning...\n";
+		return;
+	}
+
+	auto name = get_name();
+	if (basic_client_information.find(name) == std::end(basic_client_information))
+	{
+		std::cout << "No client with that name. try refreshing the client information.\n";
+		return;
+	}
+
+	auto client_id = basic_client_information.at(name);
+	if (symmetric_keys.find(client_id) == std::end(symmetric_keys))
+	{
+		std::cout << "Cant send text message, symmetric key required.\n";
+		return;
+	}
+
+	std::string message;
+	std::cout << "Enter message:\n";
+	std::getline(std::cin, message);
+
+	auto encrypted_message = symmetric_keys.at(client_id).encrypt(message);
+
+	Protocol::SendMessageRequest request{};
+	std::copy(std::begin(client_id), std::end(client_id), std::begin(request.client_id));
+	request.messsage_type = Protocol::MessageType::SendTextMessage;
+	request.payload_size = encrypted_message.length();
+
+	Protocol::RequestHeader request_header{};
+	std::copy(std::begin(client_information->client_id), std::end(client_information->client_id), std::begin(request_header.client_id));
+	request_header.request_code = Protocol::RequestCode::MessageSend;
+	request_header.version = Config::version;
+	request_header.payload_size = sizeof(request) + request.payload_size;
+
+	TcpClient tcp_client(server_information.first, server_information.second);
+	tcp_client.write_struct(request_header);
+	tcp_client.write_struct(request);
+	tcp_client.write_string(encrypted_message);
+
+	auto response_header = tcp_client.read_struct<Protocol::ResponseHeader>();
+	if (!received_expected_response_code(Protocol::ResponseCode::MessageSend, response_header.response_code))
+	{
+		return;
+	}
+
+	auto response = tcp_client.read_struct<Protocol::SendMessageResponse>();
+	if (response.client_id != request.client_id)
+	{
+		std::cout << "Received response with wrong client id\n";
+		return;
+	}
+
+	std::cout << "Message ID: " << response.message_id << "\n";
+}
+
 void Client::handle_symmetric_key_request(const Protocol::PullMessagesResponseEntry& entry)
 {
 	print_message(entry.client_id, "Request for symmetric key");

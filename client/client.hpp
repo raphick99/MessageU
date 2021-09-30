@@ -32,6 +32,7 @@ public:
 	void send_symmetric_key_request();
 	void send_symmetric_key();
 	void pull_messages_request();
+	void send_text_message_request();
 
 private:
 	void handle_symmetric_key_request(const Protocol::PullMessagesResponseEntry&);
