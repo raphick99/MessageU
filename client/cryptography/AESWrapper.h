@@ -12,6 +12,7 @@ private:
 	AESWrapper(const AESWrapper& aes);
 public:
 	static unsigned char* GenerateKey(unsigned char* buffer, unsigned int length);
+	static std::string GenerateKey();
 
 	AESWrapper();
 	AESWrapper(const unsigned char* key, unsigned int size);

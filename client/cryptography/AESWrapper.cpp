@@ -15,6 +15,14 @@ unsigned char* AESWrapper::GenerateKey(unsigned char* buffer, unsigned int lengt
 	return buffer;
 }
 
+std::string AESWrapper::GenerateKey()
+{
+	std::string key;
+	key.resize(DEFAULT_KEYLENGTH);
+	GenerateKey(reinterpret_cast<unsigned char*>(key.data()), key.length());
+	return key;
+}
+
 AESWrapper::AESWrapper()
 {
 	GenerateKey(_key, DEFAULT_KEYLENGTH);
