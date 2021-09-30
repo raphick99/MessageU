@@ -470,27 +470,6 @@ bool Client::received_expected_response_code(Protocol::ResponseCode expected_res
 	return true;
 }
 
-std::optional<ClientInformation> Client::get_client_info()
-{
-	try
-	{
-		auto client_information = ClientInformation::read_from_file(Config::me_info_filename);
-		return std::make_optional<ClientInformation>(
-			client_information.client_id,
-			client_information.name,
-			client_information.rsa_private_wrapper.getPrivateKey()
-			);
-	}
-	catch (const ProjectException& e)
-	{
-		if (e.status != ProjectStatus::ClientInformation_FileDoesntExist)
-		{
-			throw;
-		}
-	}
-	return std::nullopt;
-}
-
 std::pair<std::string, std::string> Client::get_server_info()
 {
 	if (!(std::filesystem::exists(Config::server_info_filename)))
@@ -512,5 +491,26 @@ std::pair<std::string, std::string> Client::get_server_info()
 	std::getline(server_file_contents, port);
 
 	return std::pair<std::string, std::string>(host, port);
+}
+
+std::optional<ClientInformation> Client::get_client_info()
+{
+	try
+	{
+		auto client_information = ClientInformation::read_from_file(Config::me_info_filename);
+		return std::make_optional<ClientInformation>(
+			client_information.client_id,
+			client_information.name,
+			client_information.rsa_private_wrapper.getPrivateKey()
+			);
+	}
+	catch (const ProjectException& e)
+	{
+		if (e.status != ProjectStatus::ClientInformation_FileDoesntExist)
+		{
+			throw;
+		}
+	}
+	return std::nullopt;
 }
 
