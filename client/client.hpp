@@ -30,6 +30,7 @@ public:
 	void client_list_request();
 	void get_public_key_request();
 	void send_symmetric_key_request();
+	void send_symmetric_key();
 	void pull_messages_request();
 
 private:
