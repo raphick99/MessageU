@@ -364,7 +364,7 @@ void Client::send_text_message_request()
 	auto client_id = basic_client_information.at(name);
 	if (symmetric_keys.find(client_id) == std::end(symmetric_keys))
 	{
-		std::cout << "Cant send text message, symmetric key required.\n";
+		std::cout << "Can't send text message, symmetric key required.\n";
 		return;
 	}
 
