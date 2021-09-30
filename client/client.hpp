@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include "protocol/response_code.hpp"
 #include "client_information.hpp"
+#include "tcp_client.hpp"
+#include "protocol/pull_messages_response_entry.hpp"
 
 class Client
 {
@@ -25,6 +27,11 @@ public:
 	void get_public_key_request();
 	void send_symmetric_key_request();
 	void pull_messages_request();
+
+private:
+	void handle_symmetric_key_request(const Protocol::PullMessagesResponseEntry&, const TcpClient&);
+	void handle_symmetric_key(const Protocol::PullMessagesResponseEntry&, const TcpClient&);
+	void handle_text_message(const Protocol::PullMessagesResponseEntry&, const TcpClient&);
 
 private:
 	std::string get_name();

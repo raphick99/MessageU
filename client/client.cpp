@@ -265,22 +265,17 @@ void Client::pull_messages_request()
 	while (already_read < response_header.payload_size)
 	{
 		auto current_message_header = tcp_client.read_struct<Protocol::PullMessagesResponseEntry>();
-		auto current_message_content = tcp_client.read_string(current_message_header.payload_size);  // No buffering.
-		already_read += sizeof(Protocol::PullMessagesResponseEntry) + current_message_header.payload_size;
 		
 		switch (current_message_header.message_type)
 		{
 		case Protocol::MessageType::RequestSymmetricKey:
-			// Need to generate a symmetric key, encrypt it with the senders public_key, and send back;
-			std::cout << "Received symmetric key request.\n";
+			handle_symmetric_key_request(current_message_header, tcp_client);
 			break;
 		case Protocol::MessageType::SendSymmetricKey:
-			// Need to read the symmetric key, decrypt it with the private key, and keep it.
-			std::cout << "Received symmetric key response.\n";
+			handle_symmetric_key(current_message_header, tcp_client);
 			break;
 		case Protocol::MessageType::SendTextMessage:
-			std::cout << "Received text message.\n";
-			// Need to decrypt the message, and display.
+			handle_text_message(current_message_header, tcp_client);
 			break;
 		case Protocol::MessageType::SendFile:
 			std::cout << "Not Supported in this version of the client.\n";
@@ -289,7 +284,27 @@ void Client::pull_messages_request()
 			// Throw exception
 			break;
 		}
+		//auto current_message_content = tcp_client.read_string(current_message_header.payload_size);  // No buffering.
+		already_read += sizeof(Protocol::PullMessagesResponseEntry) + current_message_header.payload_size;
 	}
+}
+
+void Client::handle_symmetric_key_request(const Protocol::PullMessagesResponseEntry& entry, const TcpClient& tcp_client)
+{
+	// Need to generate a symmetric key, encrypt it with the senders public_key, and send back;
+	std::cout << "Received symmetric key request.\n";
+}
+
+void Client::handle_symmetric_key(const Protocol::PullMessagesResponseEntry& entry, const TcpClient& tcp_client)
+{
+	// Need to read the symmetric key, decrypt it with the private key, and keep it.
+	std::cout << "Received symmetric key response.\n";
+}
+
+void Client::handle_text_message(const Protocol::PullMessagesResponseEntry& entry, const TcpClient& tcp_client)
+{
+	// Need to decrypt the message, and display.
+	std::cout << "Received text message.\n";
 }
 
 std::string Client::get_name()
