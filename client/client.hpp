@@ -30,6 +30,7 @@ public:
 	void client_list_request();
 	void get_public_key_request();
 	void send_symmetric_key_request();
+	void send_symmetric_key();
 	void pull_messages_request();
 
 private:
@@ -38,6 +39,7 @@ private:
 	void handle_text_message(const Protocol::PullMessagesResponseEntry&, TcpClient&);
 
 private:
+	void print_message(const std::array<uint8_t, 16>&, const std::string&);
 	std::string get_name();
 	bool is_client_registered();
 	static bool received_expected_response_code(Protocol::ResponseCode, Protocol::ResponseCode);
