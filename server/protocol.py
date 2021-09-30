@@ -110,6 +110,16 @@ class SendMessageRequest(RequestHeader):
         return cls(header.client_id, header.code, header.payload_size, to_client, message_type, content)
 
 
+@dataclasses.dataclass
+class PullMessagesRequest(RequestHeader):
+    @classmethod
+    def parse(cls, header: RequestHeader, connection):
+        if header.payload_size != 0:
+            raise exceptions.PayloadSizeForPullMessagesRequestShouldBeZero()
+
+        return cls(header.client_id, header.code, header.payload_size)
+
+
 def parse(data):
     header = RequestHeader.parse_header(data)
     return {
@@ -117,6 +127,7 @@ def parse(data):
         RequestCode.ListUsers: ListUsersRequest.parse,
         RequestCode.GetPublicKey: GetPublicKeyRequest.parse,
         RequestCode.SendMessage: SendMessageRequest.parse,
+        RequestCode.PullMessages: PullMessagesRequest.parse,
     }[header.code](header, data)
 
 
@@ -211,3 +222,20 @@ class SendMessageResponse(ResponseHeader):
 
     def _build_payload(self):
         return self.layout.pack(self.client_id, self.message_id)
+
+
+@dataclasses.dataclass
+class PullMessagesResponse(ResponseHeader):
+    message_list: List[Tuple[bytes, int, int, bytes]]
+
+    layout = struct.Struct('<16sIBI')
+
+    @property
+    def code(self):
+        return ResponseCode.PullMessages
+
+    def _build_payload(self):
+        payload = b''
+        for client_id, message_id, message_type, content in self.message_list:
+            payload += self.layout.pack(client_id, message_id, message_type, len(content)) + content
+        return payload

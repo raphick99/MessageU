@@ -10,10 +10,12 @@ public:
 	TcpClient(const std::string& host, const std::string& port);
 	~TcpClient() = default;
 
-	template<typename T>
-	std::string read_prefixed_string()
+	std::string read_string(size_t buffer_size)
 	{
-		T buffer_size = read_struct<T>();
+		if (buffer_size == 0)
+		{
+			return std::string();
+		}
 
 		std::string buffer;
 		buffer.resize(buffer_size);
@@ -46,10 +48,8 @@ public:
 		return t;
 	}
 
-	template<typename T>
-	void write_prefixed_string(const std::string& string_to_write)
+	void write_string(const std::string& string_to_write)
 	{
-		write_struct<T>(static_cast<T>(string_to_write.size()));
 		std::size_t write_length = boost::asio::write(socket, boost::asio::buffer(string_to_write.data(), string_to_write.size()));
 		if (write_length != string_to_write.size())
 		{

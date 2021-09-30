@@ -28,3 +28,7 @@ class PayloadSizeForListUsersRequestShouldBeZero(GeneralServerException):
 
 class NoClientWithRequestedClientID(GeneralServerException):
     pass
+
+
+class PayloadSizeForPullMessagesRequestShouldBeZero(GeneralServerException):
+    pass

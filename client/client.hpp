@@ -24,6 +24,7 @@ public:
 	void client_list_request();
 	void get_public_key_request();
 	void send_symmetric_key_request();
+	void pull_messages_request();
 
 private:
 	std::string get_name();
