@@ -130,30 +130,6 @@ void Client::get_public_key_request()
 	std::cout << "Public Key received successfully!\n";
 }
 
-void Client::send_symmetric_key_request()
-{
-	assert_client_is_registered();
-	auto client_id = get_client_id();
-	send_message(client_id, Protocol::MessageType::RequestSymmetricKey);
-}
-
-void Client::send_symmetric_key()
-{
-	assert_client_is_registered();
-	auto client_id = get_client_id();
-
-	if (public_keys.find(client_id) == std::end(public_keys))
-	{
-		std::cout << "Cant send symmetric key, public key required.\n";
-		return;
-	}
-	auto symmetric_key = AESWrapper::GenerateKey();
-	symmetric_keys.emplace(std::make_pair(client_id, symmetric_key));
-	auto encrypted_symmetric_key = public_keys.at(client_id).encrypt(symmetric_key);
-
-	send_message(client_id, Protocol::MessageType::SendSymmetricKey, encrypted_symmetric_key);
-}
-
 void Client::pull_messages_request()
 {
 	assert_client_is_registered();
@@ -187,6 +163,30 @@ void Client::pull_messages_request()
 		}
 		already_read += sizeof(Protocol::PullMessagesResponseEntry) + current_message_header.payload_size;
 	}
+}
+
+void Client::send_symmetric_key_request()
+{
+	assert_client_is_registered();
+	auto client_id = get_client_id();
+	send_message(client_id, Protocol::MessageType::RequestSymmetricKey);
+}
+
+void Client::send_symmetric_key()
+{
+	assert_client_is_registered();
+	auto client_id = get_client_id();
+
+	if (public_keys.find(client_id) == std::end(public_keys))
+	{
+		std::cout << "Cant send symmetric key, public key required.\n";
+		return;
+	}
+	auto symmetric_key = AESWrapper::GenerateKey();
+	symmetric_keys.emplace(std::make_pair(client_id, symmetric_key));
+	auto encrypted_symmetric_key = public_keys.at(client_id).encrypt(symmetric_key);
+
+	send_message(client_id, Protocol::MessageType::SendSymmetricKey, encrypted_symmetric_key);
 }
 
 void Client::send_text_message_request()
