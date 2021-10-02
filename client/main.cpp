@@ -32,36 +32,46 @@ int main(void)
                 continue;
             }
 
-            switch (input)
+            try
             {
-            case 10:
-                client.register_request();
-                break;
-            case 20:
-                client.client_list_request();
-                break;
-            case 30:
-                client.get_public_key_request();
-                break;
-            case 40:
-                client.pull_messages_request();
-                break;
-            case 50:
-                client.send_text_message_request();
-                break;
-            case 51:
-                client.send_symmetric_key_request();
-                break;
-            case 52:
-                client.send_symmetric_key();
-                break;
-            case 0:
-                return 0;
-                break;
-            default:
-                std::cout << "invalid input. not a valid option\n";
-                continue;
+				switch (input)
+				{
+				case 10:
+					client.register_request();
+					break;
+				case 20:
+					client.client_list_request();
+					break;
+				case 30:
+					client.get_public_key_request();
+					break;
+				case 40:
+					client.pull_messages_request();
+					break;
+				case 50:
+					client.send_text_message_request();
+					break;
+				case 51:
+					client.send_symmetric_key_request();
+					break;
+				case 52:
+					client.send_symmetric_key();
+					break;
+				case 0:
+					return 0;
+					break;
+				default:
+					std::cout << "invalid input. not a valid option\n";
+					continue;
+				}
             }
+			catch (const ProjectException& e)
+			{
+                if (e.status != ProjectStatus::Client_UnexpectedResponseCode)
+                {
+                    throw;
+                }
+			}
         }
     }
     catch (const ProjectException& e)

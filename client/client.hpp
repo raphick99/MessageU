@@ -5,13 +5,16 @@
 #include <utility>
 #include <unordered_map>
 #include <map>
-#include "protocol/response_code.hpp"
+#include <type_traits>
 #include "client_information.hpp"
+#include "config.hpp"
 #include "tcp_client.hpp"
 #include "cryptography/RSAWrapper.h"
 #include "cryptography/AESWrapper.h"
 #include "protocol/pull_messages_response_entry.hpp"
 #include "protocol/request.hpp"
+#include "protocol/response.hpp"
+#include "protocol/response_code.hpp"
 #include "protocol/client_id.hpp"
 
 class Client
@@ -49,4 +52,45 @@ private:
 	static bool received_expected_response_code(Protocol::ResponseCode, Protocol::ResponseCode);
 	static std::pair<std::string, std::string> get_server_info();
 	static std::optional<ClientInformation> get_client_info();
+
+	template <typename Request>
+	Protocol::ResponseHeader send_request(
+		TcpClient& tcp_client,
+		Protocol::RequestCode request_code,
+		std::optional<std::reference_wrapper<const Request>> request = std::nullopt,
+		std::optional<std::reference_wrapper<const std::string>> request_payload = std::nullopt
+	)
+	{
+		size_t request_size = 0;
+		if (request)
+		{
+			request_size += sizeof(request->get());
+			if (request_payload)
+			{
+				request_size += request_payload->get().length();
+			}
+		}
+		auto request_header = build_request(request_code, request_size);
+
+		tcp_client.write_struct(request_header);
+		if (request)
+		{
+			tcp_client.write_struct(request->get());
+			if (request_payload)
+			{
+				tcp_client.write_string(request_payload->get());
+			}
+		}
+
+		auto response_header = tcp_client.read_struct<Protocol::ResponseHeader>();
+
+		auto expected_response_code = static_cast<Protocol::ResponseCode>(
+			static_cast<std::underlying_type_t<Protocol::RequestCode>>(request_code) + 1000
+		);
+		if (!received_expected_response_code(expected_response_code, response_header.response_code))
+		{
+			throw ProjectException(ProjectStatus::Client_UnexpectedResponseCode);
+		}
+		return response_header;
+	}
 };

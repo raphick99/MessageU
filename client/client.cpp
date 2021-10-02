@@ -61,18 +61,9 @@ void Client::register_request()
 	std::copy(std::begin(name), std::end(name), std::begin(request.name));
 	std::copy(std::begin(public_key), std::end(public_key), std::begin(request.public_key));
 
-	auto request_header = build_request(Protocol::RequestCode::Register, sizeof(request));
-
 	TcpClient tcp_client(server_information.first, server_information.second);
 
-	tcp_client.write_struct(request_header);
-	tcp_client.write_struct(request);
-
-	auto response_header = tcp_client.read_struct<Protocol::ResponseHeader>();
-	if (!received_expected_response_code(Protocol::ResponseCode::Register, response_header.response_code))
-	{
-		return;
-	}
+	auto response_header = send_request<Protocol::RegisterRequest>(tcp_client, Protocol::RequestCode::Register, request);
 
 	auto response = tcp_client.read_struct<Protocol::RegisterResponse>();
 
@@ -91,18 +82,9 @@ void Client::client_list_request()
 		return;
 	}
 
-	auto request_header = build_request(Protocol::RequestCode::ListUsers, 0);
-
 	TcpClient tcp_client(server_information.first, server_information.second);
 
-	tcp_client.write_struct(request_header);
-
-	auto response_header = tcp_client.read_struct<Protocol::ResponseHeader>();
-
-	if (!received_expected_response_code(Protocol::ResponseCode::ListUsers, response_header.response_code))
-	{
-		return;
-	}
+	auto response_header = send_request<Protocol::RequestHeader>(tcp_client, Protocol::RequestCode::ListUsers);
 
 	size_t num_of_clients = static_cast<size_t>(response_header.payload_size) / sizeof(Protocol::ListClientResponseEntry);
 	basic_client_information.clear();  // Keep only the most updated info.
@@ -152,19 +134,9 @@ void Client::get_public_key_request()
 	Protocol::GetPublicKeyRequest request{};
 	std::copy(std::begin(client_id), std::end(client_id), std::begin(request.client_id));
 
-	auto request_header = build_request(Protocol::RequestCode::GetPublicKey, sizeof(request));
-
 	TcpClient tcp_client(server_information.first, server_information.second);
 
-	tcp_client.write_struct(request_header);
-	tcp_client.write_struct(request);
-
-	auto response_header = tcp_client.read_struct<Protocol::ResponseHeader>();
-
-	if (!received_expected_response_code(Protocol::ResponseCode::GetPublicKey, response_header.response_code))
-	{
-		return;
-	}
+	auto response_header = send_request<Protocol::GetPublicKeyRequest>(tcp_client, Protocol::RequestCode::GetPublicKey, request);
 
 	auto response = tcp_client.read_struct<Protocol::GetPublicKeyResponse>();
 	if (response.client_id != request.client_id)
@@ -201,17 +173,9 @@ void Client::send_symmetric_key_request()
 	request.messsage_type = Protocol::MessageType::RequestSymmetricKey;
 	request.payload_size = 0;  // No payload for RequestSymmetricKey
 
-	auto request_header = build_request(Protocol::RequestCode::MessageSend, sizeof(request));
-
 	TcpClient tcp_client(server_information.first, server_information.second);
-	tcp_client.write_struct(request_header);
-	tcp_client.write_struct(request);
 
-	auto response_header = tcp_client.read_struct<Protocol::ResponseHeader>();
-	if (!received_expected_response_code(Protocol::ResponseCode::MessageSend, response_header.response_code))
-	{
-		return;
-	}
+	auto response_header = send_request<Protocol::SendMessageRequest>(tcp_client, Protocol::RequestCode::MessageSend, request);
 
 	auto response = tcp_client.read_struct<Protocol::SendMessageResponse>();
 	if (response.client_id != request.client_id)
@@ -253,18 +217,9 @@ void Client::send_symmetric_key()
 	request.messsage_type = Protocol::MessageType::SendSymmetricKey;
 	request.payload_size = encrypted_symmetric_key.length();
 
-	auto request_header = build_request(Protocol::RequestCode::MessageSend, sizeof(request) + request.payload_size);
-
 	TcpClient tcp_client(server_information.first, server_information.second);
-	tcp_client.write_struct(request_header);
-	tcp_client.write_struct(request);
-	tcp_client.write_string(encrypted_symmetric_key);
 
-	auto response_header = tcp_client.read_struct<Protocol::ResponseHeader>();
-	if (!received_expected_response_code(Protocol::ResponseCode::MessageSend, response_header.response_code))
-	{
-		return;
-	}
+	auto response_header = send_request<Protocol::SendMessageRequest>(tcp_client, Protocol::RequestCode::MessageSend, request, encrypted_symmetric_key);
 
 	auto response = tcp_client.read_struct<Protocol::SendMessageResponse>();
 	if (response.client_id != request.client_id)
@@ -284,16 +239,9 @@ void Client::pull_messages_request()
 		return;
 	}
 
-	auto request_header = build_request(Protocol::RequestCode::PullMessages, 0);
-
 	TcpClient tcp_client(server_information.first, server_information.second);
-	tcp_client.write_struct(request_header);
 
-	auto response_header = tcp_client.read_struct<Protocol::ResponseHeader>();
-	if (!received_expected_response_code(Protocol::ResponseCode::PullMessages, response_header.response_code))
-	{
-		return;
-	}
+	auto response_header = send_request<Protocol::RequestHeader>(tcp_client, Protocol::RequestCode::PullMessages);
 
 	size_t already_read = 0;
 	while (already_read < response_header.payload_size)
@@ -355,18 +303,8 @@ void Client::send_text_message_request()
 	request.messsage_type = Protocol::MessageType::SendTextMessage;
 	request.payload_size = encrypted_message.length();
 
-	auto request_header = build_request(Protocol::RequestCode::MessageSend, sizeof(request) + request.payload_size);
-
 	TcpClient tcp_client(server_information.first, server_information.second);
-	tcp_client.write_struct(request_header);
-	tcp_client.write_struct(request);
-	tcp_client.write_string(encrypted_message);
-
-	auto response_header = tcp_client.read_struct<Protocol::ResponseHeader>();
-	if (!received_expected_response_code(Protocol::ResponseCode::MessageSend, response_header.response_code))
-	{
-		return;
-	}
+	auto response_header = send_request<Protocol::SendMessageRequest>(tcp_client, Protocol::RequestCode::MessageSend, request, encrypted_message);
 
 	auto response = tcp_client.read_struct<Protocol::SendMessageResponse>();
 	if (response.client_id != request.client_id)
