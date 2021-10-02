@@ -30,7 +30,6 @@ public:
 	Client();
 	~Client() = default;
 
-public:
 	void register_request();
 	void client_list_request();
 	void get_public_key_request();
@@ -44,11 +43,11 @@ private:
 	void handle_symmetric_key(const Protocol::PullMessagesResponseEntry&, TcpClient&);
 	void handle_text_message(const Protocol::PullMessagesResponseEntry&, TcpClient&);
 
-private:
 	void print_message(const Protocol::ClientID&, const std::string&);
 	Protocol::RequestHeader build_request(Protocol::RequestCode, size_t);
-	std::string get_name();
 	bool is_client_registered();
+
+	static std::string get_name();
 	static bool received_expected_response_code(Protocol::ResponseCode, Protocol::ResponseCode);
 	static std::pair<std::string, std::string> get_server_info();
 	static std::optional<ClientInformation> get_client_info();
