@@ -65,13 +65,10 @@ int main(void)
 					continue;
 				}
             }
-			catch (const ProjectException& e)
-			{
-                if (e.status != ProjectStatus::Client_UnexpectedResponseCode)
-                {
-                    throw;
-                }
-			}
+			catch (const RecoverableProjectException& e)
+            {
+				std::cout << "Caught RecoverableProjectException: (status=" << static_cast<std::underlying_type_t<ProjectStatus>>(e.status) << ").\n";
+            }
         }
     }
     catch (const ProjectException& e)

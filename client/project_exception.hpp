@@ -13,3 +13,8 @@ public:
 	ProjectException(ProjectStatus);
 };
 
+class RecoverableProjectException : public ProjectException
+{
+	using ProjectException::ProjectException;
+};
+

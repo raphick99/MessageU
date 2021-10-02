@@ -16,6 +16,10 @@ enum class ProjectStatus
 	Client_InvalidServerInfo,
 	Client_InvalidMessageType,
 	Client_UnexpectedResponseCode,
+	Client_ServerResponsedWithError,
+	Client_ClientNotRegistered,
+	Client_UnknownClientName,
+	Client_ReceivedMessageResponseWithWrongClientID,
 
 	ClientInformation_FileDoesntExist,
 

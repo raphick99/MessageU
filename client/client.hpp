@@ -46,9 +46,11 @@ private:
 	void print_message(const Protocol::ClientID&, const std::string&);
 	Protocol::RequestHeader build_request(Protocol::RequestCode, size_t);
 	bool is_client_registered();
+	void assert_client_is_registered();
+	Protocol::ClientID get_client_id();
 
 	static std::string get_name();
-	static bool received_expected_response_code(Protocol::ResponseCode, Protocol::ResponseCode);
+	static void assert_received_expected_response_code(Protocol::ResponseCode, Protocol::ResponseCode);
 	static std::pair<std::string, std::string> get_server_info();
 	static std::optional<ClientInformation> get_client_info();
 
@@ -86,10 +88,7 @@ private:
 		auto expected_response_code = static_cast<Protocol::ResponseCode>(
 			static_cast<std::underlying_type_t<Protocol::RequestCode>>(request_code) + 1000
 		);
-		if (!received_expected_response_code(expected_response_code, response_header.response_code))
-		{
-			throw ProjectException(ProjectStatus::Client_UnexpectedResponseCode);
-		}
+		assert_received_expected_response_code(expected_response_code, response_header.response_code);
 		return response_header;
 	}
 };

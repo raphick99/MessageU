@@ -64,11 +64,9 @@ void Client::register_request()
 	TcpClient tcp_client(server_information.first, server_information.second);
 
 	auto response_header = send_request<Protocol::RegisterRequest>(tcp_client, Protocol::RequestCode::Register, request);
-
 	auto response = tcp_client.read_struct<Protocol::RegisterResponse>();
 
 	client_information.emplace(response.client_id, name, rsa_wrapper.getPrivateKey());
-
 	ClientInformation::write_to_file(Config::me_info_filename, client_information.value());
 
 	std::cout << "Registered successfully!\n";
@@ -76,11 +74,7 @@ void Client::register_request()
 
 void Client::client_list_request()
 {
-	if (!is_client_registered())
-	{
-		std::cout << "Client must be registered. returning...\n";
-		return;
-	}
+	assert_client_is_registered();
 
 	TcpClient tcp_client(server_information.first, server_information.second);
 
@@ -112,24 +106,8 @@ void Client::client_list_request()
 
 void Client::get_public_key_request()
 {
-	if (!is_client_registered())
-	{
-		std::cout << "Client must be registered. returning...\n";
-		return;
-	}
-
-	auto name = get_name();
-	if (basic_client_information.find(name) == std::end(basic_client_information))
-	{
-		std::cout << "No client with that name. try refreshing the client information.\n";
-		return;
-	}
-
-	auto client_id = basic_client_information.at(name);
-	if (public_keys.find(client_id) != std::end(public_keys))
-	{
-		std::cout << "WARNING: Already have public key of \"" << name << "\".\n";
-	}
+	assert_client_is_registered();
+	auto client_id = get_client_id();
 
 	Protocol::GetPublicKeyRequest request{};
 	std::copy(std::begin(client_id), std::end(client_id), std::begin(request.client_id));
@@ -154,55 +132,16 @@ void Client::get_public_key_request()
 
 void Client::send_symmetric_key_request()
 {
-	if (!is_client_registered())
-	{
-		std::cout << "Client must be registered. returning...\n";
-		return;
-	}
-
-	auto name = get_name();
-	if (basic_client_information.find(name) == std::end(basic_client_information))
-	{
-		std::cout << "No client with that name. try refreshing the client information.\n";
-		return;
-	}
-	auto client_id = basic_client_information.at(name);
-
-	Protocol::SendMessageRequest request{};
-	std::copy(std::begin(client_id), std::end(client_id), std::begin(request.client_id));
-	request.messsage_type = Protocol::MessageType::RequestSymmetricKey;
-	request.payload_size = 0;  // No payload for RequestSymmetricKey
-
-	TcpClient tcp_client(server_information.first, server_information.second);
-
-	auto response_header = send_request<Protocol::SendMessageRequest>(tcp_client, Protocol::RequestCode::MessageSend, request);
-
-	auto response = tcp_client.read_struct<Protocol::SendMessageResponse>();
-	if (response.client_id != request.client_id)
-	{
-		std::cout << "Received response with wrong client id\n";
-		return;
-	}
-
-	std::cout << "Message ID: " << response.message_id << "\n";
+	assert_client_is_registered();
+	auto client_id = get_client_id();
+	send_message(client_id, Protocol::MessageType::RequestSymmetricKey);
 }
 
 void Client::send_symmetric_key()
 {
-	if (!is_client_registered())
-	{
-		std::cout << "Client must be registered. returning...\n";
-		return;
-	}
+	assert_client_is_registered();
+	auto client_id = get_client_id();
 
-	auto name = get_name();
-	if (basic_client_information.find(name) == std::end(basic_client_information))
-	{
-		std::cout << "No client with that name. try refreshing the client information.\n";
-		return;
-	}
-
-	auto client_id = basic_client_information.at(name);
 	if (public_keys.find(client_id) == std::end(public_keys))
 	{
 		std::cout << "Cant send symmetric key, public key required.\n";
@@ -233,11 +172,7 @@ void Client::send_symmetric_key()
 
 void Client::pull_messages_request()
 {
-	if (!is_client_registered())
-	{
-		std::cout << "Client must be registered. returning...\n";
-		return;
-	}
+	assert_client_is_registered();
 
 	TcpClient tcp_client(server_information.first, server_information.second);
 
@@ -272,20 +207,9 @@ void Client::pull_messages_request()
 
 void Client::send_text_message_request()
 {
-	if (!is_client_registered())
-	{
-		std::cout << "Client must be registered. returning...\n";
-		return;
-	}
+	assert_client_is_registered();
+	auto client_id = get_client_id();
 
-	auto name = get_name();
-	if (basic_client_information.find(name) == std::end(basic_client_information))
-	{
-		std::cout << "No client with that name. try refreshing the client information.\n";
-		return;
-	}
-
-	auto client_id = basic_client_information.at(name);
 	if (symmetric_keys.find(client_id) == std::end(symmetric_keys))
 	{
 		std::cout << "Can't send text message, symmetric key required.\n";
@@ -393,19 +317,39 @@ bool Client::is_client_registered()
 	return client_information.has_value();
 }
 
-bool Client::received_expected_response_code(Protocol::ResponseCode expected_response_code, Protocol::ResponseCode received_response_code)
+void Client::assert_client_is_registered()
+{
+	if (!is_client_registered())
+	{
+		std::cout << "Client must be registered. returning...\n";
+		throw RecoverableProjectException(ProjectStatus::Client_ClientNotRegistered);
+	}
+}
+
+Protocol::ClientID Client::get_client_id()
+{
+	auto name = get_name();
+	if (basic_client_information.find(name) == std::end(basic_client_information))
+	{
+		std::cout << "No client with that name. try refreshing the client information.\n";
+		throw RecoverableProjectException(ProjectStatus::Client_UnknownClientName);
+	}
+
+	return basic_client_information.at(name);
+}
+
+void Client::assert_received_expected_response_code(Protocol::ResponseCode expected_response_code, Protocol::ResponseCode received_response_code)
 {
 	if (received_response_code == Protocol::ResponseCode::GeneralError)
 	{
 		std::cout << "server responsed with an error\n";
-		return false;
+		throw RecoverableProjectException(ProjectStatus::Client_ServerResponsedWithError);
 	}
 	if (received_response_code != expected_response_code)
 	{
 		std::cout << "server response code doesnt match request\n";
-		return false;
+		throw RecoverableProjectException(ProjectStatus::Client_UnexpectedResponseCode);
 	}
-	return true;
 }
 
 std::pair<std::string, std::string> Client::get_server_info()
