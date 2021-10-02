@@ -45,6 +45,7 @@ private:
 
 	void print_message(const Protocol::ClientID&, const std::string&);
 	Protocol::RequestHeader build_request(Protocol::RequestCode, size_t);
+	void send_message(const Protocol::ClientID&, Protocol::MessageType, std::optional<std::reference_wrapper<const std::string>> = std::nullopt);
 	bool is_client_registered();
 	void assert_client_is_registered();
 	Protocol::ClientID get_client_id();

@@ -151,23 +151,7 @@ void Client::send_symmetric_key()
 	symmetric_keys.emplace(std::make_pair(client_id, symmetric_key));
 	auto encrypted_symmetric_key = public_keys.at(client_id).encrypt(symmetric_key);
 
-	Protocol::SendMessageRequest request{};
-	std::copy(std::begin(client_id), std::end(client_id), std::begin(request.client_id));
-	request.messsage_type = Protocol::MessageType::SendSymmetricKey;
-	request.payload_size = encrypted_symmetric_key.length();
-
-	TcpClient tcp_client(server_information.first, server_information.second);
-
-	auto response_header = send_request<Protocol::SendMessageRequest>(tcp_client, Protocol::RequestCode::MessageSend, request, encrypted_symmetric_key);
-
-	auto response = tcp_client.read_struct<Protocol::SendMessageResponse>();
-	if (response.client_id != request.client_id)
-	{
-		std::cout << "Received response with wrong client id\n";
-		return;
-	}
-
-	std::cout << "Message ID: " << response.message_id << "\n";
+	send_message(client_id, Protocol::MessageType::SendSymmetricKey, encrypted_symmetric_key);
 }
 
 void Client::pull_messages_request()
@@ -222,22 +206,7 @@ void Client::send_text_message_request()
 
 	auto encrypted_message = symmetric_keys.at(client_id).encrypt(message);
 
-	Protocol::SendMessageRequest request{};
-	std::copy(std::begin(client_id), std::end(client_id), std::begin(request.client_id));
-	request.messsage_type = Protocol::MessageType::SendTextMessage;
-	request.payload_size = encrypted_message.length();
-
-	TcpClient tcp_client(server_information.first, server_information.second);
-	auto response_header = send_request<Protocol::SendMessageRequest>(tcp_client, Protocol::RequestCode::MessageSend, request, encrypted_message);
-
-	auto response = tcp_client.read_struct<Protocol::SendMessageResponse>();
-	if (response.client_id != request.client_id)
-	{
-		std::cout << "Received response with wrong client id\n";
-		return;
-	}
-
-	std::cout << "Message ID: " << response.message_id << "\n";
+	send_message(client_id, Protocol::MessageType::SendTextMessage, encrypted_message);
 }
 
 void Client::handle_symmetric_key_request(const Protocol::PullMessagesResponseEntry& entry)
@@ -300,6 +269,33 @@ Protocol::RequestHeader Client::build_request(Protocol::RequestCode request_code
 	request_header.payload_size = static_cast<uint32_t>(payload_size);
 
 	return request_header;
+}
+
+void Client::send_message(
+	const Protocol::ClientID& client_id,
+	Protocol::MessageType message_type,
+	std::optional<std::reference_wrapper<const std::string>> content
+)
+{
+	Protocol::SendMessageRequest request{};
+	std::copy(std::begin(client_id), std::end(client_id), std::begin(request.client_id));
+	request.messsage_type = message_type;
+	request.payload_size = 0;
+	if (content)
+	{
+		request.payload_size = content->get().length();
+	}
+
+	TcpClient tcp_client(server_information.first, server_information.second);
+	auto response_header = send_request<Protocol::SendMessageRequest>(tcp_client, Protocol::RequestCode::MessageSend, request, content);
+	auto response = tcp_client.read_struct<Protocol::SendMessageResponse>();
+	if (response.client_id != request.client_id)
+	{
+		std::cout << "Received response with wrong client id\n";
+		throw RecoverableProjectException(ProjectStatus::Client_ReceivedMessageResponseWithWrongClientID);
+	}
+
+	std::cout << "Message ID: " << response.message_id << "\n";
 }
 
 std::string Client::get_name()
