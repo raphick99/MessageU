@@ -17,3 +17,4 @@ public:
 	static ClientInformation read_from_file(const std::string&);
 	static void write_to_file(const std::string&, const ClientInformation&);
 };
+
