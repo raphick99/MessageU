@@ -1,6 +1,6 @@
 import threading
 import sqlite3
-from datetime import datetime
+import datetime
 import exceptions
 
 
@@ -92,6 +92,6 @@ class Database:
 
     @multithread_protect
     def _update_last_seen(self, client_id):
-        last_seen = datetime.now().strftime('%Y-%m-%d %X')
+        last_seen = datetime.datetime.now().strftime('%Y-%m-%d %X')
         self.connection.execute('UPDATE clients SET LastSeen = ? WHERE ID = ?', (last_seen, client_id))
         self.connection.commit()
