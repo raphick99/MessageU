@@ -36,9 +36,6 @@
     <ClInclude Include="tcp_client.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utility.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="client.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

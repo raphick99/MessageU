@@ -37,11 +37,13 @@ public:
 	void send_symmetric_key_request();
 	void send_symmetric_key();
 	void send_text_message_request();
+	void send_file_request();
 
 private:
 	void handle_symmetric_key_request(const Protocol::PullMessagesResponseEntry&);
 	void handle_symmetric_key(const Protocol::PullMessagesResponseEntry&, TcpClient&);
 	void handle_text_message(const Protocol::PullMessagesResponseEntry&, TcpClient&);
+	void handle_file(const Protocol::PullMessagesResponseEntry&, TcpClient&);
 
 	void print_message(const Protocol::ClientID&, const std::string&);
 	Protocol::RequestHeader build_request(Protocol::RequestCode, size_t);
@@ -50,6 +52,7 @@ private:
 	void assert_client_is_registered();
 	Protocol::ClientID get_client_id();
 
+	static std::string generate_random_filename();
 	static std::string get_name();
 	static void assert_received_expected_response_code(Protocol::ResponseCode, Protocol::ResponseCode);
 	static std::pair<std::string, std::string> get_server_info();
