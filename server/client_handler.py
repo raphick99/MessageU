@@ -10,7 +10,8 @@ log = logging.getLogger(__name__)
 
 
 class ClientHandler(socketserver.StreamRequestHandler):
-    def handle_register_request(self, request):
+    @staticmethod
+    def handle_register_request(request):
         db = database.Database()
 
         client_id = uuid.uuid4().bytes
@@ -20,7 +21,8 @@ class ClientHandler(socketserver.StreamRequestHandler):
             client_id=client_id,
         )
 
-    def handle_client_list_request(self, request):
+    @staticmethod
+    def handle_client_list_request(request):
         db = database.Database()
 
         client_list = [
@@ -32,7 +34,8 @@ class ClientHandler(socketserver.StreamRequestHandler):
             client_list=client_list,
         )
 
-    def handle_get_public_key_request(self, request):
+    @staticmethod
+    def handle_get_public_key_request(request):
         db = database.Database()
 
         result = db.get_public_key_by_client_id(request.requested_client_id)
@@ -45,7 +48,8 @@ class ClientHandler(socketserver.StreamRequestHandler):
             public_key=public_key,
         )
 
-    def handle_send_message_request(self, request):
+    @staticmethod
+    def handle_send_message_request(request):
         db = database.Database()
         message_id = db.add_message(request.to_client, request.client_id, request.message_type.value, request.content)
         return protocol.response.SendMessageResponse(
@@ -53,7 +57,8 @@ class ClientHandler(socketserver.StreamRequestHandler):
             message_id=message_id,
         )
 
-    def handle_pull_messages_request(self, request):
+    @staticmethod
+    def handle_pull_messages_request(request):
         db = database.Database()
 
         messages = db.extract_client_messages(request.client_id)
