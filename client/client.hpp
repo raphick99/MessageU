@@ -52,11 +52,12 @@ private:
 	Protocol::RequestHeader build_request(Protocol::RequestCode, size_t);
 	void send_message(const Protocol::ClientID&, Protocol::MessageType, std::optional<std::reference_wrapper<const std::string>> = std::nullopt);
 	bool is_client_registered();
-	void assert_client_is_registered();
+	void assert_client_registered();
 	Protocol::ClientID get_client_id();
 
 	static std::string generate_random_filename();
 	static std::string get_name();
+	static void assert_correct_client_id_in_response(const Protocol::ClientID&, const Protocol::ClientID&);
 	static void assert_received_expected_response_code(Protocol::ResponseCode, Protocol::ResponseCode);
 	static std::pair<std::string, std::string> get_server_info();
 	static std::optional<ClientInformation> get_client_info();

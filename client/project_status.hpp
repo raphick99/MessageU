@@ -19,12 +19,13 @@ enum class ProjectStatus
 	Client_ServerResponsedWithError,
 	Client_ClientNotRegistered,
 	Client_UnknownClientName,
-	Client_ReceivedMessageResponseWithWrongClientID,
 	Client_InputNameTooShort,
 	Client_InputNameTooLong,
 	Client_SendFileRequestNotFound,
+	Client_AlreadyRegistered,
+	Client_UnreachableCodeInRegistration,
+	Client_WrongClientIDInResponse,
 
 	ClientInformation_FileDoesntExist,
-
 };
 

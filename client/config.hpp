@@ -3,9 +3,6 @@
 #include <cstdint>
 #include <string>
 
-/*
-* Config namespace. declares configurations for the project
-*/
 namespace Config
 {
 	static const uint8_t client_version = 2;
