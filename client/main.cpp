@@ -22,6 +22,7 @@ int main(void)
             std::cout << "50) Send a text message\n";
             std::cout << "51) Send a request for symmetric key\n";
             std::cout << "52) Send your symmetric key\n";
+            std::cout << "53) Send a file\n";
             std::cout << "0) Exit client\n";
             std::cout << "? ";
             if (!(std::cin >> input))
@@ -56,6 +57,9 @@ int main(void)
 					break;
 				case 52:
 					client.send_symmetric_key();
+					break;
+				case 53:
+					client.send_file_request();
 					break;
 				case 0:
 					return 0;
