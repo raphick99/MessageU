@@ -16,7 +16,7 @@ class ClientHandler(socketserver.StreamRequestHandler):
         client_id = uuid.uuid4().bytes
         db.add_client(client_id, request.name, request.public_key)
 
-        return protocol.RegisterResponse(
+        return protocol.response.RegisterResponse(
             client_id=client_id,
         )
 
@@ -28,7 +28,7 @@ class ClientHandler(socketserver.StreamRequestHandler):
             if client_id != request.client_id
         ]
 
-        return protocol.ListUsersResponse(
+        return protocol.response.ListUsersResponse(
             client_list=client_list,
         )
 
@@ -40,7 +40,7 @@ class ClientHandler(socketserver.StreamRequestHandler):
             raise exceptions.NoClientWithRequestedClientID(request.requested_client_id)
 
         public_key, = result
-        return protocol.GetPublicKeyResponse(
+        return protocol.response.GetPublicKeyResponse(
             client_id=request.requested_client_id,
             public_key=public_key,
         )
@@ -48,7 +48,7 @@ class ClientHandler(socketserver.StreamRequestHandler):
     def handle_send_message_request(self, request):
         db = database.Database()
         message_id = db.add_message(request.to_client, request.client_id, request.message_type.value, request.content)
-        return protocol.SendMessageResponse(
+        return protocol.response.SendMessageResponse(
             client_id=request.to_client,
             message_id=message_id,
         )
@@ -58,26 +58,26 @@ class ClientHandler(socketserver.StreamRequestHandler):
 
         messages = db.extract_client_messages(request.client_id)
 
-        return protocol.PullMessagesResponse(
+        return protocol.response.PullMessagesResponse(
             message_list=messages,
         )
 
     def handle(self):
-        request = protocol.RequestHeader.parse(self.rfile)
+        request = protocol.request.RequestHeader.parse(self.rfile)
         log.debug(f'received: {request}')
 
         try:
             response = {
-                protocol.RequestCode.Register: self.handle_register_request,
-                protocol.RequestCode.ListUsers: self.handle_client_list_request,
-                protocol.RequestCode.GetPublicKey: self.handle_get_public_key_request,
-                protocol.RequestCode.SendMessage: self.handle_send_message_request,
-                protocol.RequestCode.PullMessages: self.handle_pull_messages_request,
+                protocol.request.RequestCode.Register: self.handle_register_request,
+                protocol.request.RequestCode.ListUsers: self.handle_client_list_request,
+                protocol.request.RequestCode.GetPublicKey: self.handle_get_public_key_request,
+                protocol.request.RequestCode.SendMessage: self.handle_send_message_request,
+                protocol.request.RequestCode.PullMessages: self.handle_pull_messages_request,
             }[request.code](request)
 
         except exceptions.GeneralServerException as e:
             log.info(f'caught exception: {type(e).__name__}, {e.args}')
-            response = protocol.GeneralErrorResponse()
+            response = protocol.response.GeneralErrorResponse()
 
         log.debug(f'sending: {response}')
         self.wfile.write(response.build())
