@@ -42,8 +42,8 @@ class Database:
 
     @multithread_protect
     def add_message(self, to_client, from_client, message_type, content):
-        self.connection.execute('UPDATE clients SET LastSeen = ? WHERE ID = ?', (self.get_current_time(), to_client))
-        message_id = self.get_next_message_id()
+        self._update_last_seen(from_client)
+        message_id = self._get_next_message_id()
         self.connection.execute(
             'INSERT INTO messages values (?, ?, ?, ?, ?)',
             (message_id, to_client, from_client, message_type, content)
@@ -56,10 +56,11 @@ class Database:
         try:
             self.connection.execute(
                 'INSERT INTO clients values (?, ?, ?, ?)',
-                (client_id, name, public_key, self.get_current_time())
+                (client_id, name, public_key, '')
             )
         except sqlite3.IntegrityError:
             raise exceptions.ClientWithRequestedNameAlreadyRegistered(name)
+        self._update_last_seen(client_id)
         self.connection.commit()
 
     @multithread_protect
@@ -71,14 +72,8 @@ class Database:
         return self.connection.execute('SELECT PublicKey FROM clients WHERE ID = ?', (client_id, )).fetchone()
 
     @multithread_protect
-    def get_next_message_id(self):
-        next_message_id, = self.connection.execute('SELECT Next FROM message_counter').fetchone()
-        self.connection.execute('UPDATE message_counter SET Next = ?', (next_message_id + 1,))
-        self.connection.commit()
-        return next_message_id
-
-    @multithread_protect
     def extract_client_messages(self, client_id):
+        self._update_last_seen(client_id)
         messages = self.connection.execute(
             'SELECT FromClient, ID, Type, Content FROM messages'
             ' WHERE ToClient = ?',
@@ -88,6 +83,15 @@ class Database:
         self.connection.commit()
         return messages
 
-    @staticmethod
-    def get_current_time():
-        return datetime.now().strftime('%Y-%m-%d %X')
+    @multithread_protect
+    def _get_next_message_id(self):
+        next_message_id, = self.connection.execute('SELECT Next FROM message_counter').fetchone()
+        self.connection.execute('UPDATE message_counter SET Next = ?', (next_message_id + 1,))
+        self.connection.commit()
+        return next_message_id
+
+    @multithread_protect
+    def _update_last_seen(self, client_id):
+        last_seen = datetime.now().strftime('%Y-%m-%d %X')
+        self.connection.execute('UPDATE clients SET LastSeen = ? WHERE ID = ?', (last_seen, client_id))
+        self.connection.commit()
