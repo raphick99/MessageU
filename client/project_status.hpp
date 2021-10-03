@@ -20,6 +20,8 @@ enum class ProjectStatus
 	Client_ClientNotRegistered,
 	Client_UnknownClientName,
 	Client_ReceivedMessageResponseWithWrongClientID,
+	Client_InputNameTooShort,
+	Client_InputNameTooLong,
 
 	ClientInformation_FileDoesntExist,
 

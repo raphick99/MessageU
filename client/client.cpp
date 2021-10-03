@@ -45,11 +45,16 @@ void Client::register_request()
 
 	auto name = get_name();
 
+	if (name.length() == 0)
+	{
+		std::cout << "Input length must be longer than 0.\n";
+		throw RecoverableProjectException(ProjectStatus::Client_InputNameTooShort);
+	}
 	// Make sure input is less than the required size, counting on the \0.
 	if (name.length() > sizeof(Protocol::RegisterRequest::name) - 1)
 	{
 		std::cout << "Input is too long. cannot be more than " << sizeof(Protocol::RegisterRequest::name) - 1 << "\n";
-		return;
+		throw RecoverableProjectException(ProjectStatus::Client_InputNameTooLong);
 	}
 
 	// Create a private key.
