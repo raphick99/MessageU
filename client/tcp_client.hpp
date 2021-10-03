@@ -6,6 +6,9 @@
 
 class TcpClient
 {
+private:
+	static constexpr size_t CHUNK_SIZE = 1024;
+
 public:
 	TcpClient(const std::string& host, const std::string& port);
 	~TcpClient() = default;
