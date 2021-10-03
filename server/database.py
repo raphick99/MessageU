@@ -55,8 +55,8 @@ class Database:
     def add_client(self, client_id, name, public_key):
         try:
             self.connection.execute(
-                'INSERT INTO clients values (?, ?, ?, ?)',
-                (client_id, name, public_key, '')
+                'INSERT INTO clients(ID, Name, PublicKey) values (?, ?, ?)',
+                (client_id, name, public_key)
             )
         except sqlite3.IntegrityError:
             raise exceptions.ClientWithRequestedNameAlreadyRegistered(name)
