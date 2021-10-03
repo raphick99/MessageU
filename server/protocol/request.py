@@ -1,7 +1,6 @@
 import struct
 import enum
 import dataclasses
-
 import exceptions
 
 
