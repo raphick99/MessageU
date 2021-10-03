@@ -45,11 +45,16 @@ void Client::register_request()
 
 	auto name = get_name();
 
+	if (name.length() == 0)
+	{
+		std::cout << "Input length must be longer than 0.\n";
+		throw RecoverableProjectException(ProjectStatus::Client_InputNameTooShort);
+	}
 	// Make sure input is less than the required size, counting on the \0.
 	if (name.length() > sizeof(Protocol::RegisterRequest::name) - 1)
 	{
 		std::cout << "Input is too long. cannot be more than " << sizeof(Protocol::RegisterRequest::name) - 1 << "\n";
-		return;
+		throw RecoverableProjectException(ProjectStatus::Client_InputNameTooLong);
 	}
 
 	// Create a private key.
@@ -155,7 +160,7 @@ void Client::pull_messages_request()
 			handle_text_message(current_message_header, tcp_client);
 			break;
 		case Protocol::MessageType::SendFile:
-			std::cout << "Not Supported in this version of the client.\n";
+			handle_file(current_message_header, tcp_client);
 			break;
 		default:
 			throw ProjectException(ProjectStatus::Client_InvalidMessageType);
@@ -196,7 +201,7 @@ void Client::send_text_message_request()
 
 	if (symmetric_keys.find(client_id) == std::end(symmetric_keys))
 	{
-		std::cout << "Can't send text message, symmetric key required.\n";
+		std::cout << "can't send text message, symmetric key required.\n";
 		return;
 	}
 
@@ -207,6 +212,36 @@ void Client::send_text_message_request()
 	auto encrypted_message = symmetric_keys.at(client_id).encrypt(message);
 
 	send_message(client_id, Protocol::MessageType::SendTextMessage, encrypted_message);
+}
+
+void Client::send_file_request()
+{
+	assert_client_is_registered();
+	auto client_id = get_client_id();
+
+	if (symmetric_keys.find(client_id) == std::end(symmetric_keys))
+	{
+		std::cout << "can't send text message, symmetric key required.\n";
+		return;
+	}
+
+	std::string file_path;
+	std::cout << "Enter file path: ";
+	std::getline(std::cin, file_path);
+
+
+	if (!std::filesystem::exists(file_path))
+	{
+		std::cout << "file not found\n";
+		throw RecoverableProjectException(ProjectStatus::Client_SendFileRequestNotFound);
+	}
+
+	std::ifstream file(file_path);
+	std::stringstream file_contents;
+	file_contents << file.rdbuf();
+	auto encrypted_file_contents = symmetric_keys.at(client_id).encrypt(file_contents.str());
+
+	send_message(client_id, Protocol::MessageType::SendFile, encrypted_file_contents);
 }
 
 void Client::handle_symmetric_key_request(const Protocol::PullMessagesResponseEntry& entry)
@@ -238,6 +273,29 @@ void Client::handle_text_message(const Protocol::PullMessagesResponseEntry& entr
 	print_message(entry.client_id, message);
 }
 
+void Client::handle_file(const Protocol::PullMessagesResponseEntry& entry, TcpClient& tcp_client)
+{
+	if (symmetric_keys.find(entry.client_id) == std::end(symmetric_keys))
+	{
+		print_message(entry.client_id, "can't decrypt message");
+		tcp_client.read_string(entry.payload_size);  // remove payload from incoming buffer.
+		return;
+	}
+
+	auto encrypted_file = tcp_client.read_string(entry.payload_size);
+	auto file_contents = symmetric_keys.at(entry.client_id).decrypt(encrypted_file);
+
+	auto file_name = generate_random_filename() + ".MessageU";
+	auto path = std::filesystem::temp_directory_path() / file_name;
+
+	std::ofstream file(path);
+	file << file_contents;
+	file.close();
+
+	auto file_received_message = "received file, saved at " + path.string();
+	print_message(entry.client_id, file_received_message);
+}
+
 void Client::print_message(const Protocol::ClientID& client_id, const std::string& content)
 {
 	std::string name("<unknown>");
@@ -264,7 +322,7 @@ Protocol::RequestHeader Client::build_request(Protocol::RequestCode request_code
 	{
 		std::copy(std::begin(client_information->client_id), std::end(client_information->client_id), std::begin(request_header.client_id));
 	}
-	request_header.version = Config::version;
+	request_header.version = Config::client_version;
 	request_header.request_code = request_code;
 	request_header.payload_size = static_cast<uint32_t>(payload_size);
 
@@ -296,6 +354,20 @@ void Client::send_message(
 	}
 
 	std::cout << "Message ID: " << response.message_id << "\n";
+}
+
+std::string Client::generate_random_filename()
+{
+	std::srand(std::time(nullptr));
+	std::stringstream random_filename;
+	char letters_and_numbers[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+	for (int i = 0; i < 32; i++)
+	{
+		random_filename << letters_and_numbers[std::rand() % (sizeof(letters_and_numbers) - 1)];
+	}
+
+	return random_filename.str();
 }
 
 std::string Client::get_name()

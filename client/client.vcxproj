@@ -42,7 +42,6 @@
     <ClInclude Include="protocol\send_message_request.hpp" />
     <ClInclude Include="protocol\send_message_response.hpp" />
     <ClInclude Include="tcp_client.hpp" />
-    <ClInclude Include="utility.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="client.cpp" />
