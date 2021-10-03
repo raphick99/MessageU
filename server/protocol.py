@@ -33,8 +33,19 @@ class RequestHeader:
 
     header_layout = struct.Struct('<16sBHI')
 
+    @staticmethod
+    def parse(data):
+        header = RequestHeader._parse_header(data)
+        return {
+            RequestCode.Register: RegisterRequest.parse,
+            RequestCode.ListUsers: ListUsersRequest.parse,
+            RequestCode.GetPublicKey: GetPublicKeyRequest.parse,
+            RequestCode.SendMessage: SendMessageRequest.parse,
+            RequestCode.PullMessages: PullMessagesRequest.parse,
+        }[header.code](header, data)
+
     @classmethod
-    def parse_header(cls, connection):
+    def _parse_header(cls, connection):
         client_id, version, code, payload_size = cls.header_layout.unpack(connection.read(cls.header_layout.size))
 
         if version != CLIENT_VERSION:
@@ -118,17 +129,6 @@ class PullMessagesRequest(RequestHeader):
             raise exceptions.PayloadSizeForPullMessagesRequestShouldBeZero()
 
         return cls(header.client_id, header.code, header.payload_size)
-
-
-def parse(data):
-    header = RequestHeader.parse_header(data)
-    return {
-        RequestCode.Register: RegisterRequest.parse,
-        RequestCode.ListUsers: ListUsersRequest.parse,
-        RequestCode.GetPublicKey: GetPublicKeyRequest.parse,
-        RequestCode.SendMessage: SendMessageRequest.parse,
-        RequestCode.PullMessages: PullMessagesRequest.parse,
-    }[header.code](header, data)
 
 
 class ResponseCode(enum.Enum):
