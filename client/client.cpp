@@ -322,7 +322,7 @@ Protocol::RequestHeader Client::build_request(Protocol::RequestCode request_code
 	{
 		std::copy(std::begin(client_information->client_id), std::end(client_information->client_id), std::begin(request_header.client_id));
 	}
-	request_header.version = Config::version;
+	request_header.version = Config::client_version;
 	request_header.request_code = request_code;
 	request_header.payload_size = static_cast<uint32_t>(payload_size);
 

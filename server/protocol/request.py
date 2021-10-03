@@ -5,7 +5,7 @@ import dataclasses
 import exceptions
 
 
-CLIENT_VERSION = 1
+CLIENT_VERSION = 2
 
 
 class RequestCode(enum.Enum):
