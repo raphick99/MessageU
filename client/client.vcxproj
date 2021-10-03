@@ -27,6 +27,7 @@
     <ClInclude Include="cryptography\RSAWrapper.h" />
     <ClInclude Include="project_exception.hpp" />
     <ClInclude Include="project_status.hpp" />
+    <ClInclude Include="protocol\client_id.hpp" />
     <ClInclude Include="protocol\get_public_key_request.hpp" />
     <ClInclude Include="protocol\get_public_key_response.hpp" />
     <ClInclude Include="protocol\pull_messages_response_entry.hpp" />

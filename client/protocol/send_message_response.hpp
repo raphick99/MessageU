@@ -1,16 +1,15 @@
 #pragma once
 
-#include <array>
+#include <cstdint>
 #include "client_id.hpp"
 
 namespace Protocol
 {
 #pragma pack(push, 1)
-	struct ListClientResponseEntry
+	struct SendMessageResponse
 	{
 		ClientID client_id;
-		std::array<char, 255> name;
+		uint32_t message_id;
 	};
 #pragma pack(pop)
 }
-
