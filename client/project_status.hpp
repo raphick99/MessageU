@@ -1,7 +1,7 @@
 #pragma once
 
 /*
-* Represents the possible internal statuses that may arrise.
+* Represents the possible statuses that may be thrown.
 */
 enum class ProjectStatus
 {

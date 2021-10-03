@@ -4,8 +4,8 @@
 #include "project_status.hpp"
 
 /*
-* class for our internal project exceptions.
-*/
+ * class for project exceptions. contains a status, which is the reason for the exception.
+ */
 class ProjectException : public std::exception
 {
 public:
@@ -13,6 +13,10 @@ public:
 	ProjectException(ProjectStatus);
 };
 
+/*
+ * class for recoverable project exceptions. the same as ProjectException, 
+ *  except that its recoverable, meaning it doesnt kill the client.
+ */
 class RecoverableProjectException : public ProjectException
 {
 	using ProjectException::ProjectException;

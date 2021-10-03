@@ -4,6 +4,9 @@
 #include <boost/asio.hpp>
 #include "project_exception.hpp"
 
+/*
+ * Contains logic for a tcp client, from connection to sending/receiving data.
+ */
 class TcpClient
 {
 private:

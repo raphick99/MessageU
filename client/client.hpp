@@ -17,6 +17,9 @@
 #include "protocol/response_code.hpp"
 #include "protocol/client_id.hpp"
 
+/*
+ * Most important class, contains the flows for handling a client, with the info required.
+ */
 class Client
 {
 private:

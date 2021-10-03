@@ -5,6 +5,9 @@
 #include "project_status.hpp"
 #include "client.hpp"
 
+/*
+ * main function, runs the main loop for the client. calls the appropriate functions, and catches the exceptions.
+ */
 int main(void)
 {
     try
