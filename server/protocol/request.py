@@ -24,7 +24,7 @@ class MessageType(enum.Enum):
 
 
 @dataclasses.dataclass
-class RequestHeader:
+class Request:
     client_id: bytes
     code: RequestCode
     payload_size: int
@@ -32,8 +32,8 @@ class RequestHeader:
     header_layout = struct.Struct('<16sBHI')
 
     @staticmethod
-    def parse(data):
-        header = RequestHeader._parse_header(data)
+    def parse_request(data):
+        header = Request._parse_header(data)
         return {
             RequestCode.Register: RegisterRequest.parse,
             RequestCode.ListUsers: ListUsersRequest.parse,
@@ -56,14 +56,14 @@ class RequestHeader:
 
 
 @dataclasses.dataclass
-class RegisterRequest(RequestHeader):
+class RegisterRequest(Request):
     name: str
     public_key: bytes
 
     layout = struct.Struct('<255s160s')
 
     @classmethod
-    def parse(cls, header: RequestHeader, connection):
+    def parse(cls, header: Request, connection):
         name, public_key = cls.layout.unpack(connection.read(cls.layout.size))
 
         if b'\x00' not in name:
@@ -78,9 +78,9 @@ class RegisterRequest(RequestHeader):
 
 
 @dataclasses.dataclass
-class ListUsersRequest(RequestHeader):
+class ListUsersRequest(Request):
     @classmethod
-    def parse(cls, header: RequestHeader, connection):
+    def parse(cls, header: Request, connection):
         if header.payload_size != 0:
             raise exceptions.PayloadSizeForListUsersRequestShouldBeZero()
 
@@ -88,13 +88,13 @@ class ListUsersRequest(RequestHeader):
 
 
 @dataclasses.dataclass
-class GetPublicKeyRequest(RequestHeader):
+class GetPublicKeyRequest(Request):
     requested_client_id: bytes
 
     layout = struct.Struct('<16s')
 
     @classmethod
-    def parse(cls, header: RequestHeader, connection):
+    def parse(cls, header: Request, connection):
         client_id, = cls.layout.unpack(connection.read(cls.layout.size))
 
         if header.payload_size != cls.layout.size:
@@ -104,7 +104,7 @@ class GetPublicKeyRequest(RequestHeader):
 
 
 @dataclasses.dataclass
-class SendMessageRequest(RequestHeader):
+class SendMessageRequest(Request):
     to_client: bytes
     message_type: MessageType
     content: bytes
@@ -112,7 +112,7 @@ class SendMessageRequest(RequestHeader):
     layout = struct.Struct('<16sBI')
 
     @classmethod
-    def parse(cls, header: RequestHeader, connection):
+    def parse(cls, header: Request, connection):
         to_client, message_type, content_size = cls.layout.unpack(connection.read(cls.layout.size))
         message_type = MessageType(message_type)
         content = connection.read(content_size)  # TODO should possibly read in chunks
@@ -120,9 +120,9 @@ class SendMessageRequest(RequestHeader):
 
 
 @dataclasses.dataclass
-class PullMessagesRequest(RequestHeader):
+class PullMessagesRequest(Request):
     @classmethod
-    def parse(cls, header: RequestHeader, connection):
+    def parse(cls, header: Request, connection):
         if header.payload_size != 0:
             raise exceptions.PayloadSizeForPullMessagesRequestShouldBeZero()
 

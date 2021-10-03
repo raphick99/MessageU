@@ -63,7 +63,7 @@ class ClientHandler(socketserver.StreamRequestHandler):
         )
 
     def handle(self):
-        request = protocol.request.RequestHeader.parse(self.rfile)
+        request = protocol.request.Request.parse_request(self.rfile)
         log.debug(f'received: {request}')
 
         try:

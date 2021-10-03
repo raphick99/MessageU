@@ -17,7 +17,7 @@ class ResponseCode(enum.Enum):
 
 
 @dataclasses.dataclass
-class ResponseHeader:
+class Response:
     header_layout = struct.Struct('<BHI')
 
     @property
@@ -33,14 +33,14 @@ class ResponseHeader:
 
 
 @dataclasses.dataclass
-class GeneralErrorResponse(ResponseHeader):
+class GeneralErrorResponse(Response):
     @property
     def code(self):
         return ResponseCode.GeneralError
 
 
 @dataclasses.dataclass
-class RegisterResponse(ResponseHeader):
+class RegisterResponse(Response):
     client_id: bytes
 
     layout = struct.Struct('<16s')
@@ -54,7 +54,7 @@ class RegisterResponse(ResponseHeader):
 
 
 @dataclasses.dataclass
-class ListUsersResponse(ResponseHeader):
+class ListUsersResponse(Response):
     client_list: List[Tuple[bytes, bytes]]
 
     layout = struct.Struct('<16s255s')
@@ -71,7 +71,7 @@ class ListUsersResponse(ResponseHeader):
 
 
 @dataclasses.dataclass
-class GetPublicKeyResponse(ResponseHeader):
+class GetPublicKeyResponse(Response):
     client_id: bytes
     public_key: bytes
 
@@ -86,7 +86,7 @@ class GetPublicKeyResponse(ResponseHeader):
 
 
 @dataclasses.dataclass
-class SendMessageResponse(ResponseHeader):
+class SendMessageResponse(Response):
     client_id: bytes
     message_id: int
 
@@ -101,7 +101,7 @@ class SendMessageResponse(ResponseHeader):
 
 
 @dataclasses.dataclass
-class PullMessagesResponse(ResponseHeader):
+class PullMessagesResponse(Response):
     message_list: List[Tuple[bytes, int, int, bytes]]
 
     layout = struct.Struct('<16sIBI')
