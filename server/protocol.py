@@ -7,7 +7,7 @@ import exceptions
 
 
 CLIENT_VERSION = 1
-SERVER_VERSION = 1
+SERVER_VERSION = 2
 
 
 class RequestCode(enum.Enum):
