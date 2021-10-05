@@ -55,6 +55,14 @@ void Client::register_request()
 		std::cout << "Input is too long. cannot be more than " << sizeof(Protocol::RegisterRequest::name) - 1 << "\n";
 		throw RecoverableProjectException(ProjectStatus::Client_InputNameTooLong);
 	}
+	for (auto character : name)
+	{
+		if ((character > 0x7f) || (character < 0x20))
+		{
+			std::cout << "Input must be ascii, contains (0x" << std::hex << int(character) << ") which isnt ascii.\n";
+			throw RecoverableProjectException(ProjectStatus::Client_InputContainsNonAsciiCharacter);
+		}
+	}
 
 	// Create a private key.
 	auto rsa_wrapper = RSAPrivateWrapper();
