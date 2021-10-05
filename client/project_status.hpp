@@ -22,6 +22,7 @@ enum class ProjectStatus
 	Client_AlreadyRegistered,
 	Client_UnreachableCodeInRegistration,
 	Client_WrongClientIDInResponse,
+	Client_InputContainsNonAsciiCharacter,
 
 	ClientInformation_FileDoesntExist,
 };
