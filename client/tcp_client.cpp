@@ -37,6 +37,7 @@ std::string TcpClient::read_string(size_t nbytes)
 		{
 			throw ProjectException(ProjectStatus::TcpClient_IncompleteRead);
 		}
+		data += buffer;
 	}
 	return data;
 }
