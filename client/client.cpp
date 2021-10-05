@@ -4,20 +4,20 @@
 #include <sstream>
 #include <fstream>
 #include <boost/algorithm/hex.hpp>
-#include "client.hpp"
-#include "tcp_client.hpp"
-#include "project_exception.hpp"
-#include "config.hpp"
-#include "protocol/request.hpp"
-#include "protocol/response.hpp"
-#include "protocol/register_request.hpp"
-#include "protocol/register_response.hpp"
-#include "protocol/list_client_response_entry.hpp"
-#include "protocol/get_public_key_request.hpp"
-#include "protocol/get_public_key_response.hpp"
-#include "protocol/send_message_request.hpp"
-#include "protocol/send_message_response.hpp"
-#include "protocol/pull_messages_response_entry.hpp"
+#include "client.h"
+#include "tcp_client.h"
+#include "project_exception.h"
+#include "config.h"
+#include "protocol/request.h"
+#include "protocol/response.h"
+#include "protocol/register_request.h"
+#include "protocol/register_response.h"
+#include "protocol/list_client_response_entry.h"
+#include "protocol/get_public_key_request.h"
+#include "protocol/get_public_key_response.h"
+#include "protocol/send_message_request.h"
+#include "protocol/send_message_response.h"
+#include "protocol/pull_messages_response_entry.h"
 
 Client::Client() :
 	server_information(get_server_info()),
@@ -286,8 +286,8 @@ void Client::handle_file(const Protocol::PullMessagesResponseEntry& entry, TcpCl
 	auto encrypted_file = tcp_client.read_string(entry.payload_size);
 	auto file_contents = symmetric_keys.at(entry.client_id).decrypt(encrypted_file);
 
-	auto file_name = generate_random_filename() + ".MessageU";
-	auto path = std::filesystem::temp_directory_path() / file_name;
+	auto file_name = std::tmpnam(nullptr) + std::string(".MessageU");
+	auto path = std::filesystem::temp_directory_path() / file_name;  // using %TMP% directly didnt work. temp_directory_path returns the same thing.
 
 	std::ofstream file(path);
 	file << file_contents;
@@ -350,20 +350,6 @@ void Client::send_message(
 	auto response = tcp_client.read_struct<Protocol::SendMessageResponse>();
 	assert_correct_client_id_in_response(request.client_id, response.client_id);
 	std::cout << "Message ID: " << response.message_id << "\n";
-}
-
-std::string Client::generate_random_filename()
-{
-	std::srand(std::time(nullptr));
-	std::stringstream random_filename;
-	char letters_and_numbers[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
-	for (int i = 0; i < 32; i++)
-	{
-		random_filename << letters_and_numbers[std::rand() % (sizeof(letters_and_numbers) - 1)];
-	}
-
-	return random_filename.str();
 }
 
 std::string Client::get_name()

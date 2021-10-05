@@ -2,7 +2,7 @@
 
 #include <string>
 #include "cryptography/RSAWrapper.h"
-#include "protocol/client_id.hpp"
+#include "protocol/client_id.h"
 
 /*
  * Class holding basic client information, can serialize/deserialize to/from the me.info file.

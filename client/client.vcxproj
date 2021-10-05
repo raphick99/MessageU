@@ -19,29 +19,29 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="client.hpp" />
-    <ClInclude Include="client_information.hpp" />
-    <ClInclude Include="config.hpp" />
+    <ClInclude Include="client.h" />
+    <ClInclude Include="client_information.h" />
+    <ClInclude Include="config.h" />
     <ClInclude Include="cryptography\AESWrapper.h" />
     <ClInclude Include="cryptography\Base64Wrapper.h" />
     <ClInclude Include="cryptography\RSAWrapper.h" />
-    <ClInclude Include="project_exception.hpp" />
-    <ClInclude Include="project_status.hpp" />
-    <ClInclude Include="protocol\client_id.hpp" />
-    <ClInclude Include="protocol\get_public_key_request.hpp" />
-    <ClInclude Include="protocol\get_public_key_response.hpp" />
-    <ClInclude Include="protocol\pull_messages_response_entry.hpp" />
-    <ClInclude Include="protocol\list_client_response_entry.hpp" />
-    <ClInclude Include="protocol\message_type.hpp" />
-    <ClInclude Include="protocol\register_request.hpp" />
-    <ClInclude Include="protocol\register_response.hpp" />
-    <ClInclude Include="protocol\request.hpp" />
-    <ClInclude Include="protocol\request_code.hpp" />
-    <ClInclude Include="protocol\response.hpp" />
-    <ClInclude Include="protocol\response_code.hpp" />
-    <ClInclude Include="protocol\send_message_request.hpp" />
-    <ClInclude Include="protocol\send_message_response.hpp" />
-    <ClInclude Include="tcp_client.hpp" />
+    <ClInclude Include="project_exception.h" />
+    <ClInclude Include="project_status.h" />
+    <ClInclude Include="protocol\client_id.h" />
+    <ClInclude Include="protocol\get_public_key_request.h" />
+    <ClInclude Include="protocol\get_public_key_response.h" />
+    <ClInclude Include="protocol\pull_messages_response_entry.h" />
+    <ClInclude Include="protocol\list_client_response_entry.h" />
+    <ClInclude Include="protocol\message_type.h" />
+    <ClInclude Include="protocol\register_request.h" />
+    <ClInclude Include="protocol\register_response.h" />
+    <ClInclude Include="protocol\request.h" />
+    <ClInclude Include="protocol\request_code.h" />
+    <ClInclude Include="protocol\response.h" />
+    <ClInclude Include="protocol\response_code.h" />
+    <ClInclude Include="protocol\send_message_request.h" />
+    <ClInclude Include="protocol\send_message_response.h" />
+    <ClInclude Include="tcp_client.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="client.cpp" />
@@ -121,7 +121,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;WIN32_WINNT=0x0A00;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;WIN32_WINNT=0x0A00;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Program Files\cryptopp850;C:\Program Files\boost\boost_1_77_0</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>

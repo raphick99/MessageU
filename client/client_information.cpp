@@ -2,8 +2,8 @@
 #include <fstream>
 #include <sstream>
 #include <boost/algorithm/hex.hpp>
-#include "client_information.hpp"
-#include "project_exception.hpp"
+#include "client_information.h"
+#include "project_exception.h"
 #include "cryptography/Base64Wrapper.h"
 
 ClientInformation::ClientInformation(const Protocol::ClientID& _client_id, const std::string& _name, const std::string& _key) :

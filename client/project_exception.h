@@ -1,7 +1,7 @@
 #pragma once
 
 #include <exception>
-#include "project_status.hpp"
+#include "project_status.h"
 
 /*
  * class for project exceptions. contains a status, which is the reason for the exception.

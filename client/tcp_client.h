@@ -2,7 +2,7 @@
 
 #include <string>
 #include <boost/asio.hpp>
-#include "project_exception.hpp"
+#include "project_exception.h"
 
 /*
  * Contains logic for a tcp client, from connection to sending/receiving data.

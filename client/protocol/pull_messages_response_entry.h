@@ -1,17 +1,17 @@
 #pragma once
 
 #include <cstdint>
-#include "client_id.hpp"
-#include "request_code.hpp"
+#include "client_id.h"
+#include "message_type.h"
 
 namespace Protocol
 {
 #pragma pack(push, 1)
-	struct RequestHeader
+	struct PullMessagesResponseEntry
 	{
 		ClientID client_id;
-		uint8_t version;
-		RequestCode request_code;
+		uint32_t message_id;
+		MessageType message_type;
 		uint32_t payload_size;
 	};
 #pragma pack(pop)

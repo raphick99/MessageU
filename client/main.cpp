@@ -1,9 +1,9 @@
 ﻿#include <iostream>
 #include <limits>
 #include <boost/asio.hpp>
-#include "project_exception.hpp"
-#include "project_status.hpp"
-#include "client.hpp"
+#include "project_exception.h"
+#include "project_status.h"
+#include "client.h"
 
 /*
  * main function, runs the main loop for the client. calls the appropriate functions, and catches the exceptions.

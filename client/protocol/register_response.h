@@ -1,15 +1,13 @@
 #pragma once
 
-#include <array>
-#include "client_id.hpp"
+#include "client_id.h"
 
 namespace Protocol
 {
 #pragma pack(push, 1)
-	struct ListClientResponseEntry
+	struct RegisterResponse
 	{
 		ClientID client_id;
-		std::array<char, 255> name;
 	};
 #pragma pack(pop)
 }

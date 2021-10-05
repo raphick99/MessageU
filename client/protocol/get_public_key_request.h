@@ -1,15 +1,13 @@
 #pragma once
 
-#include <cstdint>
-#include "client_id.hpp"
+#include "client_id.h"
 
 namespace Protocol
 {
 #pragma pack(push, 1)
-	struct SendMessageResponse
+	struct GetPublicKeyRequest
 	{
 		ClientID client_id;
-		uint32_t message_id;
 	};
 #pragma pack(pop)
 }

@@ -15,13 +15,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="config.hpp">
+    <ClInclude Include="config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="project_exception.hpp">
+    <ClInclude Include="project_exception.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="project_status.hpp">
+    <ClInclude Include="project_status.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cryptography\AESWrapper.h">
@@ -33,55 +33,55 @@
     <ClInclude Include="cryptography\RSAWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tcp_client.hpp">
+    <ClInclude Include="tcp_client.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="client.hpp">
+    <ClInclude Include="client.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="client_information.hpp">
+    <ClInclude Include="client_information.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="protocol\request.hpp">
+    <ClInclude Include="protocol\request.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="protocol\request_code.hpp">
+    <ClInclude Include="protocol\request_code.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="protocol\message_type.hpp">
+    <ClInclude Include="protocol\message_type.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="protocol\register_request.hpp">
+    <ClInclude Include="protocol\register_request.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="protocol\response.hpp">
+    <ClInclude Include="protocol\response.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="protocol\response_code.hpp">
+    <ClInclude Include="protocol\response_code.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="protocol\register_response.hpp">
+    <ClInclude Include="protocol\register_response.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="protocol\list_client_response_entry.hpp">
+    <ClInclude Include="protocol\list_client_response_entry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="protocol\get_public_key_request.hpp">
+    <ClInclude Include="protocol\get_public_key_request.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="protocol\get_public_key_response.hpp">
+    <ClInclude Include="protocol\get_public_key_response.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="protocol\send_message_request.hpp">
+    <ClInclude Include="protocol\send_message_request.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="protocol\send_message_response.hpp">
+    <ClInclude Include="protocol\send_message_response.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="protocol\pull_messages_response_entry.hpp">
+    <ClInclude Include="protocol\pull_messages_response_entry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="protocol\client_id.hpp">
+    <ClInclude Include="protocol\client_id.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

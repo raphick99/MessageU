@@ -6,16 +6,16 @@
 #include <unordered_map>
 #include <map>
 #include <type_traits>
-#include "client_information.hpp"
-#include "config.hpp"
-#include "tcp_client.hpp"
+#include "client_information.h"
+#include "config.h"
+#include "tcp_client.h"
 #include "cryptography/RSAWrapper.h"
 #include "cryptography/AESWrapper.h"
-#include "protocol/pull_messages_response_entry.hpp"
-#include "protocol/request.hpp"
-#include "protocol/response.hpp"
-#include "protocol/response_code.hpp"
-#include "protocol/client_id.hpp"
+#include "protocol/pull_messages_response_entry.h"
+#include "protocol/request.h"
+#include "protocol/response.h"
+#include "protocol/response_code.h"
+#include "protocol/client_id.h"
 
 /*
  * Most important class, contains the flows for handling a client, with the info required.
@@ -55,7 +55,6 @@ private:
 	void assert_client_registered();
 	Protocol::ClientID get_client_id();
 
-	static std::string generate_random_filename();
 	static std::string get_name();
 	static void assert_correct_client_id_in_response(const Protocol::ClientID&, const Protocol::ClientID&);
 	static void assert_received_expected_response_code(Protocol::ResponseCode, Protocol::ResponseCode);
