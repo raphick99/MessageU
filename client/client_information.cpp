@@ -55,6 +55,6 @@ void ClientInformation::write_to_file(const std::string& path, const ClientInfor
 
     file_to_write_to << client_information.name << "\n";
     file_to_write_to << hexed_client_id << "\n";
-    file_to_write_to << key << "\n";
+    file_to_write_to << key;
 }
 
